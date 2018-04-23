@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en-us">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>스마트팜 데이터의 이해 (2/2)</title>
+<meta name="description" content="Connect Everything in Agriculture">
+<meta name="generator" content="Hugo 0.38.2" />
+<meta property="og:title" content="스마트팜 데이터의 이해 (2/2)" />
+<meta property="og:description" content="PREV : 스마트팜(ICT 기반 원예온실) 데이터의 이해 (1/2)스마트팜 데이터의 요약지난 Post에서 분단위 데이터 dat을 시간단위 데이터로 요약하여 새로운 데이터 dat_hour를 만들었을 때의 저장용량과 다운로드 속도 측면에서의 이점을 설명하였다. 이점이 있다면 그에 반하는 역효과도 분명 발생하게 되는데 1/60배로 데이터를 축약했다면 그만큼의 정보손실이 발생한다.
+온실 내부평균온도에 대한 분단위 데이터와 시간단위 데이터의 그래프를 비교해보면 그 영향을 눈으로 확인할 수 있다. X축은 0시~24시까지의 시간, Y축은 내부평균온도(EVTP)로 설정하였다. 임의의 하루를 선택하기 위해 dplyr패키지의 filter() 함수를 사용하였고, ggplot2패키지로 그린 2개의 그래프는 gridExtra패키지의 grid." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="/post/smartfarm_data2/" />
+
+
+
+<meta property="article:published_time" content="2018-04-19T00:00:00&#43;00:00"/>
+
+<meta property="article:modified_time" content="2018-04-19T00:00:00&#43;00:00"/>
+
+
+
+
+
+
+
+
+
+
+
+<link rel="dns-prefetch" href="//fonts.googleapis.com" />
+<link rel="dns-prefetch" href="//fonts.gstatic.com" />
+
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:400,400italic,700" type="text/css" media="all" />
+<link rel="stylesheet" href="/css/style.css" type="text/css" media="all" />
+<script type="text/javascript" src="/js/scripts.js"></script>
+<link rel="shortcut icon" href="/favicon.ico">
+
+</head>
+<body class="body body-right-sidebar mobile" itemscope="itemscope" itemtype="http://schema.org/WebPage">
+	<div class="container container-outer">
+		<header class="header" itemscope="itemscope" itemtype="http://schema.org/WPHeader">
+			<div class="container container-inner clearfix">
+				<div class="logo" role="banner" itemscope="itemscope" itemtype="http://schema.org/Brand">
+					<a class="logo__link" href="/" title="AgData Lab" rel="home">
+						<h1 class="logo__title">AgData Lab</h1>
+						<h2 class="logo__tagline">서울대학교 농업정보시스템 연구실</h2>
+					</a>
+				</div>
+			</div>
+			
+<nav class="menu" itemscope="itemscope" itemtype="http://schema.org/SiteNavigationElement">
+	<ul class="menu__list">
+		<li class="menu__item"><a class="menu__link" href="/about">ABOUT</a></li>
+		<li class="menu__item"><a class="menu__link" href="/agri_stat">농업통계</a></li>
+		<li class="menu__item"><a class="menu__link" href="/prod_supply">생산과 유통</a></li>
+		<li class="menu__item"><a class="menu__link" href="/monitor_control">환경모니터링과 제어</a></li>
+		<li class="menu__item"><a class="menu__link" href="/science_tech">과학과 기술</a></li>
+		<li class="menu__item"><a class="menu__link" href="/paper_review">논문 리뷰</a></li>
+		<li class="menu__item"><a class="menu__link" href="/news_scrap">뉴스 스크랩</a></li>
+	</ul>
+</nav>
+
+		</header>
+		<div class="wrapper clearfix">
+
+<main class="main-content content" role="main" itemprop="mainContentOfPage">
+	<article class="post">
+		<header class="post__header clearfix">
+			<h1 class="post__title">스마트팜 데이터의 이해 (2/2)</h1>
+			<p class="post__meta meta">
+				<svg class="icon icon-time" height="14" viewBox="0 0 16 16" width="14" xmlns="http://www.w3.org/2000/svg"><path d="m8-.0000003c-4.4 0-8 3.6-8 8 0 4.4000003 3.6 8.0000003 8 8.0000003 4.4 0 8-3.6 8-8.0000003 0-4.4-3.6-8-8-8zm0 14.4000003c-3.52 0-6.4-2.88-6.4-6.4000003 0-3.52 2.88-6.4 6.4-6.4 3.52 0 6.4 2.88 6.4 6.4 0 3.5200003-2.88 6.4000003-6.4 6.4000003zm.4-10.4000003h-1.2v4.8l4.16 2.5600003.64-1.04-3.6-2.1600003z"/></svg>
+				<time class="post__meta-date" datetime="2018-04-19T00:00:00">April 19, 2018</time>
+				<span class="post__meta-categories meta-categories">
+					<svg class="icon icon-category" height="16" viewBox="0 0 16 16" width="16" xmlns="http://www.w3.org/2000/svg"><path d="m7 2l1 2h8v11h-16v-13z"/></svg>
+					<a class="meta-categories__link" href="/categories/%ed%99%98%ea%b2%bd%eb%aa%a8%eb%8b%88%ed%84%b0%eb%a7%81%ea%b3%bc-%ec%a0%9c%ec%96%b4" rel="category">환경모니터링과 제어</a></span>
+			</p>
+		</header>
+		<div class="post__content clearfix">
+			<hr />
+<center>
+<a href="/post/smartfarm_data">PREV : 스마트팜(ICT 기반 원예온실) 데이터의 이해 (1/2)</a>
+</center>
+<hr />
+<div id="--" class="section level4">
+<h4>스마트팜 데이터의 요약</h4>
+<p>지난 Post에서 분단위 데이터 <code>dat</code>을 시간단위 데이터로 요약하여 새로운 데이터 <code>dat_hour</code>를 만들었을 때의 저장용량과 다운로드 속도 측면에서의 이점을 설명하였다. 이점이 있다면 그에 반하는 역효과도 분명 발생하게 되는데 <code>1/60</code>배로 데이터를 축약했다면 그만큼의 정보손실이 발생한다.</p>
+<p>온실 내부평균온도에 대한 분단위 데이터와 시간단위 데이터의 그래프를 비교해보면 그 영향을 눈으로 확인할 수 있다. X축은 0시~24시까지의 시간, Y축은 내부평균온도(EVTP)로 설정하였다. 임의의 하루를 선택하기 위해 <code>dplyr</code>패키지의 <code>filter()</code> 함수를 사용하였고, <code>ggplot2</code>패키지로 그린 2개의 그래프는 <code>gridExtra</code>패키지의 <code>grid.arrage()</code> 함수로 2x1 격자로 배치하였다.</p>
+<pre class="r"><code>gg1 &lt;- dat %&gt;% filter(date==&#39;2015-04-19&#39;) %&gt;% 
+  ggplot() + geom_line(aes(x=hour*100+minute, y=EVTP), color=&#39;red&#39;, size = 0.8, alpha = 0.8)
+gg2 &lt;- dat_hour %&gt;% filter(date==&#39;2015-04-19&#39;) %&gt;% 
+  ggplot() + geom_line(aes(x=hour, y=EVTP), color=&#39;blue&#39;, size = 0.8, alpha = 0.8)
+grid.arrange(gg1, gg2, ncol=1, nrow=2)</code></pre>
+<p><img src="/post/2018-04-19-smartfarm_data2_files/figure-html/plot%20two%20data-1.png" width="672" /></p>
+<p>하루동안 측정된 데이터를 표현해보니 1440개로 뿌려지는 분단위 데이터는 촘촘하게 그려지는 반면 24개로 뿌려지는 시간단위 데이터는 성긴 느낌이다. 분단위 데이터가 좀더 실제 온실 내부온도의 추세를 현실적으로 표현했다면, 시간단위 데이터는 군더더기 없이 시간변화에 따른 트렌드를 더 명확하게 표현한다. 데이터 크기는 크지만 보다 디테일한 분석이 필요할 때는 분단위 데이터를 쓰면 될 것이고, 데이터의 크기가 작아야 하는 상황이거나 트렌드 파악만 필요하다면 시간단위 데이터를 쓰면 되는 것이다.</p>
+</div>
+
+		</div>
+		
+<div class="post__tags tags clearfix">
+	<svg class="icon icon-tag" width="16" height="16" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg"><path d="m4.73135 3.3795002q0-.5597-.39604-.9557-.39604-.3961-.95577-.3961-.55974 0-.95578.3961-.39604.396-.39604.9557 0 .5598.39604.9558.39604.3961.95578.3961.55973 0 .95577-.3961.39604-.396.39604-.9558zm11.26865 6.0832q0 .5596998-.39076.9504998l-5.18548 5.196q-.41188.3908-.9610504.3908-.55974 0-.9505-.3908l-7.5511496-7.5616998q-.40132-.3907-.68119-1.0666-.27987-.6759-.27987-1.2357v-4.3934q0-.54920004.40132-.95050004.40132-.4013.9505-.4013h4.39339q.55974 0 1.23565.2799.67591.2798 1.07723.6812l7.55115 7.54060004q.39076.4118.39076.961z"/></svg>
+	<ul class="tags__list">
+		<li class="tags__item"><a class="tags__link" href="/tags/%EC%98%A8%EC%8B%A4/" rel="tag">온실</a></li>
+		<li class="tags__item"><a class="tags__link" href="/tags/%EB%B9%85%EB%8D%B0%EC%9D%B4%ED%84%B0/" rel="tag">빅데이터</a></li>
+		<li class="tags__item"><a class="tags__link" href="/tags/%ED%99%98%EA%B2%BD-%EB%AA%A8%EB%8B%88%ED%84%B0%EB%A7%81/" rel="tag">환경 모니터링</a></li>
+	</ul>
+</div>
+
+	</article>
+	
+
+<div class="authorbox clearfix">
+
+  
+
+    
+
+	
+
+		<figure class="authorbox__avatar">
+
+			<img alt="장박 avatar" src="/img/jangbak.jpg" class="avatar" height="90" width="90">
+
+		</figure>
+
+		<div class="authorbox__header">
+
+			<span class="authorbox__name">About 장박</span>
+
+		</div>
+
+		<div class="authorbox__description">
+
+			장박은 농업정보시스템 연구실에서 오랜시간 숙성되고 있는 농업데이터사이언티스트이다.
+
+		</div>
+
+	
+
+  
+
+</div>
+
+
+	
+<nav class="post-nav row clearfix" itemscope="itemscope" itemtype="http://schema.org/SiteNavigationElement">
+	<div class="post-nav__item post-nav__item--prev col-1-2">
+		<a class="post-nav__link" href="/post/smartfarm_data/" rel="prev"><span class="post-nav__caption">«Previous</span><p class="post-nav__post-title">스마트팜 데이터의 이해 (1/2)</p></a>
+	</div>
+	<div class="post-nav__item post-nav__item--next col-1-2">
+		<a class="post-nav__link" href="/post/new_fujitsu_ai/" rel="next"><span class="post-nav__caption">Next»</span><p class="post-nav__post-title">후지쯔와 큐슈대학, 농업생산을 위한 AI 공동연구</p></a>
+	</div>
+</nav>
+
+	
+</main>
+
+<aside class="sidebar" itemscope="itemscope" itemtype="http://schema.org/WPSideBar">
+	
+<div class="widget-search widget">
+	<form class="widget-search__form" role="search" method="get" action="//google.com/search">
+		<label>
+			<span class="screen-reader-text">Search for:</span>
+			<input class="widget-search__field" type="search" placeholder="SEARCH..." value="" name="q">
+		</label>
+		<input class="widget-search__submit" type="submit" value="Search">
+		<input type="hidden" name="sitesearch" value="/" />
+	</form>
+</div>
+	
+<div class="widget-recent widget">
+	<h4 class="widget__title">Recent Posts</h4>
+	<div class="widget__content">
+		<ul class="widget__list">
+			<li class="widget__item"><a class="widget__link" href="/post/new_fujitsu_ai/">후지쯔와 큐슈대학, 농업생산을 위한 AI 공동연구</a></li>
+			<li class="widget__item"><a class="widget__link" href="/post/smartfarm_data2/">스마트팜 데이터의 이해 (2/2)</a></li>
+			<li class="widget__item"><a class="widget__link" href="/post/smartfarm_data/">스마트팜 데이터의 이해 (1/2)</a></li>
+			<li class="widget__item"><a class="widget__link" href="/post/2015-07-23-r-rmarkdown/">Hello R Markdown</a></li>
+		</ul>
+	</div>
+</div>
+
+	
+<div class="widget-categories widget">
+	<h4 class="widget__title">Categories</h4>
+	<div class="widget__content">
+		<ul class="widget__list">
+			<li class="widget__item"><a class="widget__link" href="/categories/%ea%b3%bc%ed%95%99%ea%b3%bc-%ea%b8%b0%ec%88%a0">과학과-기술</a></li>
+			<li class="widget__item"><a class="widget__link" href="/categories/%eb%85%bc%eb%ac%b8%eb%a6%ac%eb%b7%b0">논문리뷰</a></li>
+			<li class="widget__item"><a class="widget__link" href="/categories/%eb%86%8d%ec%97%85%ed%86%b5%ea%b3%84">농업통계</a></li>
+			<li class="widget__item"><a class="widget__link" href="/categories/%eb%89%b4%ec%8a%a4-%ec%8a%a4%ed%81%ac%eb%9e%a9">뉴스-스크랩</a></li>
+			<li class="widget__item"><a class="widget__link" href="/categories/%ec%83%9d%ec%82%b0%ea%b3%bc-%ec%9c%a0%ed%86%b5">생산과-유통</a></li>
+			<li class="widget__item"><a class="widget__link" href="/categories/%ed%99%98%ea%b2%bd%eb%aa%a8%eb%8b%88%ed%84%b0%eb%a7%81%ea%b3%bc-%ec%a0%9c%ec%96%b4">환경모니터링과-제어</a></li>
+		</ul>
+	</div>
+</div>
+	
+
+	
+<div class="widget-taglist widget">
+	<h4 class="widget__title">Tags</h4>
+	<div class="widget__content">
+		<a class="widget__link widget__link--taglist" href="/tags/ai" title="ai">ai</a>
+		<a class="widget__link widget__link--taglist" href="/tags/plot" title="plot">plot</a>
+		<a class="widget__link widget__link--taglist" href="/tags/r-markdown" title="r-markdown">r-markdown</a>
+		<a class="widget__link widget__link--taglist" href="/tags/regression" title="regression">regression</a>
+		<a class="widget__link widget__link--taglist" href="/tags/%eb%b9%85%eb%8d%b0%ec%9d%b4%ed%84%b0" title="빅데이터">빅데이터</a>
+		<a class="widget__link widget__link--taglist" href="/tags/%ec%83%9d%ec%9c%a1%eb%aa%a8%eb%8d%b8" title="생육모델">생육모델</a>
+		<a class="widget__link widget__link--taglist" href="/tags/%ec%8a%a4%eb%a7%88%ed%8a%b8%ed%8c%9c" title="스마트팜">스마트팜</a>
+		<a class="widget__link widget__link--taglist" href="/tags/%ec%98%a8%ec%8b%a4" title="온실">온실</a>
+		<a class="widget__link widget__link--taglist" href="/tags/%ed%99%98%ea%b2%bd-%eb%aa%a8%eb%8b%88%ed%84%b0%eb%a7%81" title="환경-모니터링">환경-모니터링</a>
+	</div>
+</div>
+</aside>
+
+	</div>
+		<footer class="footer" itemscope="itemscope" itemtype="http://schema.org/WPFooter">
+			<div class="container container-inner">
+				<p class="footer__copyright">&copy; 2018 AgData Lab. <span class="footer__copyright-credits">Generated with <a href="https://gohugo.io/" rel="nofollow noopener" target="_blank">Hugo</a> and <a href="https://github.com/Vimux/Mainroad/" rel="nofollow noopener" target="_blank">Mainroad theme</a>.</span></p>
+			</div>
+		</footer>
+	</div>
+
+<script>
+	var navigation = responsiveNav(".menu", {
+		navClass: "menu--collapse",
+	});
+</script>
+</body>
+</html>

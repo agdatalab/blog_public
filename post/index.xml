@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Posts on AgData Lab</title>
+    <link>/post/</link>
+    <description>Recent content in Posts on AgData Lab</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Sat, 21 Apr 2018 00:00:00 +0000</lastBuildDate>
+    
+	<atom:link href="/post/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>후지쯔와 큐슈대학, 농업생산을 위한 AI 공동연구</title>
+      <link>/post/new_fujitsu_ai/</link>
+      <pubDate>Sat, 21 Apr 2018 00:00:00 +0000</pubDate>
+      
+      <guid>/post/new_fujitsu_ai/</guid>
+      <description>Thumbnail 이미지 출처
+기사 원문
+2018년 4월 12일 규슈대학과 후지쯔(Fujitsu Limited)는 2018 년 4월부터 2년간 인공지능으로 농산물의 안정성과 정교함을 높이기 위해 농업분야 공동연구를 발표했다.
+이번 공동 연구에서 후지쯔와 규슈대학은 큐슈대학의 phytometric 기술을 사용하여 측정한 식물의 높이와 잎 표면적을 포함한 식물 성장 상태 데이터와의 시공간 변화 데이터를 통합한 독점적인 식물성장 모델을 취할 예정이다. 식물 이론을 개발하고 후지쯔가 개발한 AI 엔진과 통합하여 성장률 및 수확기간 등의 정보를 실시간으로 예측할 수 있다. 두 기관은 또한 이러한 예측을 토대로 현장에서 식물 성장을 규제함으로써 효율적인 식물 재배를 수요에 맞게 할 수 있는 시스템에 대한 연구 개발을 수행한다.</description>
+    </item>
+    
+    <item>
+      <title>스마트팜 데이터의 이해 (2/2)</title>
+      <link>/post/smartfarm_data2/</link>
+      <pubDate>Thu, 19 Apr 2018 00:00:00 +0000</pubDate>
+      
+      <guid>/post/smartfarm_data2/</guid>
+      <description>PREV : 스마트팜(ICT 기반 원예온실) 데이터의 이해 (1/2)스마트팜 데이터의 요약지난 Post에서 분단위 데이터 dat을 시간단위 데이터로 요약하여 새로운 데이터 dat_hour를 만들었을 때의 저장용량과 다운로드 속도 측면에서의 이점을 설명하였다. 이점이 있다면 그에 반하는 역효과도 분명 발생하게 되는데 1/60배로 데이터를 축약했다면 그만큼의 정보손실이 발생한다.
+온실 내부평균온도에 대한 분단위 데이터와 시간단위 데이터의 그래프를 비교해보면 그 영향을 눈으로 확인할 수 있다. X축은 0시~24시까지의 시간, Y축은 내부평균온도(EVTP)로 설정하였다. 임의의 하루를 선택하기 위해 dplyr패키지의 filter() 함수를 사용하였고, ggplot2패키지로 그린 2개의 그래프는 gridExtra패키지의 grid.</description>
+    </item>
+    
+    <item>
+      <title>스마트팜 데이터의 이해 (1/2)</title>
+      <link>/post/smartfarm_data/</link>
+      <pubDate>Mon, 16 Apr 2018 00:00:00 +0000</pubDate>
+      
+      <guid>/post/smartfarm_data/</guid>
+      <description>Thumbnail 이미지 출처
+스마트팜이란?농림수산식품교육문화정보원(EPIS, 이하 농정원)이 운영하는 SmartFarm Korea 에서 정의하는 스마트팜의 개념을 보면 스마트 온실, 스마트 과수원, 스마트 축사를 통틀어 스마트팜이라고 지칭하고 있다. 과거에 프리바 유리온실 모델과 같은 ICT 기반의 원예온실로 불리던 개념이 축산과 과수 농장까지 확대되면서 스마트팜이 개념으로 발전하였다.
+스마트팜의 구성요소는 크게 현장의 환경정보와 영상정보를 수집하는 수집부, 수집된 데이터를 저장하고 필요한 형태로 가공/분석하는 저장부, 가공/분석된 정보를 이용하여 온실 관리에 필요한 정보를 표출하고 장비를 제어하는 활용부로 나눌 수 있다.</description>
+    </item>
+    
+    <item>
+      <title>Hello R Markdown</title>
+      <link>/post/2015-07-23-r-rmarkdown/</link>
+      <pubDate>Thu, 23 Jul 2015 00:00:00 +0000</pubDate>
+      
+      <guid>/post/2015-07-23-r-rmarkdown/</guid>
+      <description>R MarkdownThis is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see http://rmarkdown.rstudio.com.
+You can embed an R code chunk like this:
+summary(cars)## speed dist ## Min. : 4.0 Min. : 2.00 ## 1st Qu.:12.0 1st Qu.: 26.00 ## Median :15.0 Median : 36.00 ## Mean :15.4 Mean : 42.98 ## 3rd Qu.</description>
+    </item>
+    
+  </channel>
+</rss>

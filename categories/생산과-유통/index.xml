@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>생산과 유통 on AgData Lab</title>
+    <link>/categories/%EC%83%9D%EC%82%B0%EA%B3%BC-%EC%9C%A0%ED%86%B5/</link>
+    <description>Recent content in 생산과 유통 on AgData Lab</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Fri, 13 Apr 2018 00:00:00 +0000</lastBuildDate>
+    
+	<atom:link href="/categories/%EC%83%9D%EC%82%B0%EA%B3%BC-%EC%9C%A0%ED%86%B5/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>농업 생산과 유통</title>
+      <link>/prod_supply/</link>
+      <pubDate>Fri, 13 Apr 2018 00:00:00 +0000</pubDate>
+      
+      <guid>/prod_supply/</guid>
+      <description>전국의 농축산물 생산량은 통계청 데이터에서 확인이 가능하다. 유통과 관련한 데이터는 한국농수산식품유통공사에서 운영하는 KAMIS 에서 제공되고 있다.
+농축산물 생산생산의 축은 농협이다.
+농축산물 유통유통의 꽃은 도매시장이다.
+전국도매시장 정보 - 가락도매시장 - 구리도매시장
+</description>
+    </item>
+    
+  </channel>
+</rss>

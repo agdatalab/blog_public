@@ -1,0 +1,44 @@
+---
+title: 스마트팜 데이터의 이해 (2/2)
+author: jangbak
+date: '2018-04-19'
+slug: smartfarm_data2
+categories:
+  - 환경모니터링과 제어
+tags:
+  - 온실
+  - 빅데이터
+  - 환경 모니터링
+---
+
+---
+
+<center> [PREV : 스마트팜(ICT 기반 원예온실) 데이터의 이해 (1/2)](/post/smartfarm_data) </center>
+
+---
+
+#### 스마트팜 데이터의 요약 
+
+```{r set env, include=FALSE, echo=FALSE}
+library(DT); library(widgetframe); library(dplyr); library(ggplot2); library(gridExtra)
+dat <- read.csv('env_min_spl.csv')
+dat_hour <- dat[,c(1,5,7:19)] %>% group_by(date,hour) %>% summarise_all(funs(mean))
+```
+
+지난 Post에서 분단위 데이터 `dat`을 시간단위 데이터로 요약하여 새로운 데이터 `dat_hour`를 만들었을 때의 저장용량과 다운로드 속도 측면에서의 이점을 설명하였다. 이점이 있다면 그에 반하는 역효과도 분명 발생하게 되는데 `1/60`배로 데이터를 축약했다면 그만큼의 정보손실이 발생한다. 
+
+온실 내부평균온도에 대한 분단위 데이터와 시간단위 데이터의 그래프를 비교해보면 그 영향을 눈으로 확인할 수 있다. X축은 0시~24시까지의 시간, Y축은 내부평균온도(EVTP)로 설정하였다. 임의의 하루를 선택하기 위해 `dplyr`패키지의 `filter()` 함수를 사용하였고, `ggplot2`패키지로 그린 2개의 그래프는 `gridExtra`패키지의 `grid.arrage()` 함수로 2x1 격자로 배치하였다.  
+
+```{r plot two data, include=TRUE, echo=TRUE}
+gg1 <- dat %>% filter(date=='2015-04-19') %>% 
+  ggplot() + geom_line(aes(x=hour*100+minute, y=EVTP), color='red', size = 0.8, alpha = 0.8)
+gg2 <- dat_hour %>% filter(date=='2015-04-19') %>% 
+  ggplot() + geom_line(aes(x=hour, y=EVTP), color='blue', size = 0.8, alpha = 0.8)
+grid.arrange(gg1, gg2, ncol=1, nrow=2)
+```
+
+하루동안 측정된 데이터를 표현해보니 1440개로 뿌려지는 분단위 데이터는 촘촘하게 그려지는 반면 24개로 뿌려지는 시간단위 데이터는 성긴 느낌이다. 분단위 데이터가 좀더 실제 온실 내부온도의 추세를 현실적으로 표현했다면, 시간단위 데이터는 군더더기 없이 시간변화에 따른 트렌드를 더 명확하게 표현한다. 데이터 크기는 크지만 보다 디테일한 분석이 필요할 때는 분단위 데이터를 쓰면 될 것이고, 데이터의 크기가 작아야 하는 상황이거나 트렌드 파악만 필요하다면 시간단위 데이터를 쓰면 되는 것이다. 
+
+
+
+

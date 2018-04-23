@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>인공지능 on Agdata Lab</title>
+    <link>/tags/%EC%9D%B8%EA%B3%B5%EC%A7%80%EB%8A%A5/</link>
+    <description>Recent content in 인공지능 on Agdata Lab</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Fri, 13 Apr 2018 00:00:00 +0000</lastBuildDate>
+    
+	<atom:link href="/tags/%EC%9D%B8%EA%B3%B5%EC%A7%80%EB%8A%A5/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>농업 빅데이터 관련 과학과 기술 </title>
+      <link>/science_tech/</link>
+      <pubDate>Fri, 13 Apr 2018 00:00:00 +0000</pubDate>
+      
+      <guid>/science_tech/</guid>
+      <description>Topic - 빅데이터, IoT, 인공지능, 4차산업혁명빅데이터
+농업분야 빅데이터에 대한 더 많은 정보는 농림축산식품공공데이터포털 에서 탐색해보세요.
+IoT
+인공지능
+4차산업혁명
+Method - 통계, 계량경제, 머신러닝통계 및 계량경제
+머신러닝
+머신러닝의 다른 이름으로 데이터마이닝도 많이 쓰인다.
+ Do you know machine learning?Tool - R, Python주요 토픽을 다루는 방법과 모델이 구동되는 도구
+R - 통계기반 모델링을 위한 최고의 친구R shiny - R 분석 결과를 웹에서 대시보드 형태로 보고싶을 때R blogdown - R 분석 결과를 웹에서 블로그 형태로 보고싶을 때Python - R보다 머신러닝과 웹 연계 기능에서 앞서가는 친구Keras - Tensorflow를 이용한 딥러닝을 쉽게 할 수 있게 해주는 친구</description>
+    </item>
+    
+  </channel>
+</rss>
