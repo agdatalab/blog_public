@@ -12,6 +12,15 @@
     
     
     <item>
+      <title>GLM을 이용한 대학학업 성취도 분석 (랩스터디)</title>
+      <link>/post/glm_ach/</link>
+      <pubDate>Wed, 25 Apr 2018 00:00:00 +0000</pubDate>
+      
+      <guid>/post/glm_ach/</guid>
+      <description> GLM을 이용한 대학학업성취도 분석  from agdatalab코멘트엄진용 : 나불나불</description>
+    </item>
+    
+    <item>
       <title>온실환경 관리대상과 에너지 절감 요소</title>
       <link>/post/env_cont_energy_reduce/</link>
       <pubDate>Wed, 25 Apr 2018 00:00:00 +0000</pubDate>
@@ -21,7 +30,7 @@
     </item>
     
     <item>
-      <title>Deep Learning &amp; Convolutional Neural Network</title>
+      <title>Deep Learning &amp; Convolutional Neural Network (랩세미나)</title>
       <link>/post/dl_cnn/</link>
       <pubDate>Tue, 24 Apr 2018 00:00:00 +0000</pubDate>
       
