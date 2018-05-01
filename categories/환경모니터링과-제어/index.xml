@@ -51,15 +51,5 @@
 스마트팜의 구성요소는 크게 현장의 환경정보와 영상정보를 수집하는 수집부, 수집된 데이터를 저장하고 필요한 형태로 가공/분석하는 저장부, 가공/분석된 정보를 이용하여 온실 관리에 필요한 정보를 표출하고 장비를 제어하는 활용부로 나눌 수 있다.</description>
     </item>
     
-    <item>
-      <title>환경모니터링과 제어</title>
-      <link>/monitor_control/</link>
-      <pubDate>Fri, 13 Apr 2018 00:00:00 +0000</pubDate>
-      
-      <guid>/monitor_control/</guid>
-      <description>환경모니터링작물의 생육에 가장 많은 영향을 미치는 요소 중 하나는 기상 환경이다. 외부 기상 환경 정보를 정확히 알 수 있어야 최적 생육 조건에 맞도록 환경 요소를 제어할 수 있다.
-</description>
-    </item>
-    
   </channel>
 </rss>

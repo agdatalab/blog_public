@@ -3,6 +3,16 @@
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   
   <url>
+    <loc>/post/ict_convergence_tech_ppt/</loc>
+    <lastmod>2018-04-26T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>/topic_categories/</loc>
+    <lastmod>2018-04-26T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
     <loc>/post/glm_ach/</loc>
     <lastmod>2018-04-25T00:00:00+00:00</lastmod>
   </url>
@@ -18,12 +28,12 @@
   </url>
   
   <url>
-    <loc>/lab_seminar/</loc>
+    <loc>/post/smartfarm_data3/</loc>
     <lastmod>2018-04-24T00:00:00+00:00</lastmod>
   </url>
   
   <url>
-    <loc>/post/smartfarm_data3/</loc>
+    <loc>/lab_activity/</loc>
     <lastmod>2018-04-24T00:00:00+00:00</lastmod>
   </url>
   
@@ -58,33 +68,13 @@
   </url>
   
   <url>
-    <loc>/science_tech/</loc>
-    <lastmod>2018-04-13T00:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
-    <loc>/prod_supply/</loc>
-    <lastmod>2018-04-13T00:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
-    <loc>/agri_stat/</loc>
-    <lastmod>2018-04-13T00:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
-    <loc>/monitor_control/</loc>
-    <lastmod>2018-04-13T00:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
     <loc>/post/2015-07-23-r-rmarkdown/</loc>
     <lastmod>2015-07-23T00:00:00+00:00</lastmod>
   </url>
   
   <url>
     <loc>/</loc>
-    <lastmod>2018-04-25T00:00:00+00:00</lastmod>
+    <lastmod>2018-04-26T00:00:00+00:00</lastmod>
     <priority>0</priority>
   </url>
   
@@ -125,7 +115,7 @@
   
   <url>
     <loc>/post/</loc>
-    <lastmod>2018-04-25T00:00:00+00:00</lastmod>
+    <lastmod>2018-04-26T00:00:00+00:00</lastmod>
     <priority>0</priority>
   </url>
   
@@ -149,18 +139,18 @@
   
   <url>
     <loc>/categories/%EA%B3%BC%ED%95%99%EA%B3%BC-%EA%B8%B0%EC%88%A0/</loc>
-    <lastmod>2018-04-13T00:00:00+00:00</lastmod>
+    <lastmod>2015-07-23T00:00:00+00:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>/categories/%EA%B8%B0%ED%83%80%EB%B0%9C%ED%91%9C%EC%9E%90%EB%A3%8C/</loc>
+    <lastmod>2018-04-26T00:00:00+00:00</lastmod>
     <priority>0</priority>
   </url>
   
   <url>
     <loc>/categories/%EB%85%BC%EB%AC%B8%EB%A6%AC%EB%B7%B0/</loc>
-    <lastmod>2018-04-13T00:00:00+00:00</lastmod>
-    <priority>0</priority>
-  </url>
-  
-  <url>
-    <loc>/categories/%EB%86%8D%EC%97%85%ED%86%B5%EA%B3%84/</loc>
     <lastmod>2018-04-13T00:00:00+00:00</lastmod>
     <priority>0</priority>
   </url>
@@ -172,7 +162,13 @@
   </url>
   
   <url>
-    <loc>/categories/%EB%9E%A9%EC%84%B8%EB%AF%B8%EB%82%98/%EC%8A%A4%ED%84%B0%EB%94%94/</loc>
+    <loc>/categories/%EB%9E%A9%EC%84%B8%EB%AF%B8%EB%82%98/</loc>
+    <lastmod>2018-04-24T00:00:00+00:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>/categories/%EB%9E%A9%EC%8A%A4%ED%84%B0%EB%94%94/</loc>
     <lastmod>2018-04-25T00:00:00+00:00</lastmod>
     <priority>0</priority>
   </url>
@@ -180,12 +176,6 @@
   <url>
     <loc>/tags/%EB%B9%85%EB%8D%B0%EC%9D%B4%ED%84%B0/</loc>
     <lastmod>2018-04-24T00:00:00+00:00</lastmod>
-    <priority>0</priority>
-  </url>
-  
-  <url>
-    <loc>/categories/%EC%83%9D%EC%82%B0%EA%B3%BC-%EC%9C%A0%ED%86%B5/</loc>
-    <lastmod>2018-04-13T00:00:00+00:00</lastmod>
     <priority>0</priority>
   </url>
   

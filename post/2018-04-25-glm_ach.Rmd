@@ -4,7 +4,7 @@ author: 김연진
 date: '2018-04-25'
 slug: glm_ach
 categories:
-  - 랩세미나/스터디
+  - 랩스터디
 tags:
   - GLM
 ---

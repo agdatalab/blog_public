@@ -4,7 +4,7 @@ author: jangbak
 date: '2018-04-24'
 slug: dl_cnn
 categories:
-  - 랩세미나/스터디
+  - 랩세미나
 tags:
   - Deep Learning
   - Convolutional Neural Network
