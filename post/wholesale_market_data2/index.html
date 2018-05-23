@@ -1,0 +1,5642 @@
+<!DOCTYPE html>
+<html lang="en-us">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>도매시장 경락 데이터의 이해 - 배추(2/3)</title>
+<meta name="description" content="Connect Everything in Agriculture">
+<meta name="generator" content="Hugo 0.40.3" />
+<meta property="og:title" content="도매시장 경락 데이터의 이해 - 배추(2/3)" />
+<meta property="og:description" content="PREV : 도매시장 경락 데이터의 이해: 배추(1/3)지난 Post에 이어서 이상치로 판단되는 10,000원 이상의 kg당 가격 케이스를 삭제한 dat3 데이터를 이용하여 도매시장 경매와 관련한 각 변수들 간의 관계를 눈으로 확인해보자. 이번 Post에서는 Cross tabulation라고도 불리는 교차분석 방법으로 명목형(categorical) 변수들 간의 관계를 보려고 한다. 교차분석은 두 변수 간의 관계를 한 변수는 X축, 다른 한 변수는 Y축 방향으로 각 변수의 요소들을 나열하고 각각의 경우에 대한 연속형 변수의 값을 보여주는 것이다. 예를들어 성별, 결혼유무 두 명목형 변수와 행복지수라는 하나의 연속형 변수가 있을 때 이를 남-기혼, 남-미혼, 여-기혼, 여-미혼으로 표현되는 2x2 표를 만들고 각 케이스에 속하는 사람들의 행복지수 평균을 구해서 비교하는 것이 교차분석의 예이다." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="/post/wholesale_market_data2/" />
+
+
+
+<meta property="article:published_time" content="2018-05-18T00:00:00&#43;00:00"/>
+
+<meta property="article:modified_time" content="2018-05-18T00:00:00&#43;00:00"/>
+
+
+
+
+
+
+
+
+
+
+
+<link rel="dns-prefetch" href="//fonts.googleapis.com" />
+<link rel="dns-prefetch" href="//fonts.gstatic.com" />
+
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:400,400italic,700" type="text/css" media="all" />
+<link rel="stylesheet" href="/css/style.css" type="text/css" media="all" />
+<script type="text/javascript" src="/js/scripts.js"></script>
+<link rel="shortcut icon" href="/favicon.ico">
+
+</head>
+<body class="body body-right-sidebar mobile" itemscope="itemscope" itemtype="http://schema.org/WebPage">
+	<div class="container container-outer">
+		<header class="header" itemscope="itemscope" itemtype="http://schema.org/WPHeader">
+			<div class="container container-inner clearfix">
+				<div class="logo" role="banner" itemscope="itemscope" itemtype="http://schema.org/Brand">
+					<a class="logo__link" href="/" title="AgData Lab" rel="home">
+						<h1 class="logo__title">AgData Lab</h1>
+						<h2 class="logo__tagline">서울대학교 농업정보시스템 연구실</h2>
+					</a>
+				</div>
+			</div>
+			
+<nav class="menu" itemscope="itemscope" itemtype="http://schema.org/SiteNavigationElement">
+	<ul class="menu__list">
+		<li class="menu__item"><a class="menu__link" href="/about">ABOUT</a></li>
+		<li class="menu__item"><a class="menu__link" href="/topic_categories">CATEGORIES</a></li>
+		<li class="menu__item"><a class="menu__link" href="/paper_review">PAPER REVIEW</a></li>
+		<li class="menu__item"><a class="menu__link" href="/news_scrap">NEWS SCRAP</a></li>
+		<li class="menu__item"><a class="menu__link" href="/lab_activity">LAB ACTIVITY</a></li>
+	</ul>
+</nav>
+
+		</header>
+		<div class="wrapper clearfix">
+
+<main class="main-content content" role="main" itemprop="mainContentOfPage">
+	<article class="post">
+		<header class="post__header clearfix">
+			<h1 class="post__title">도매시장 경락 데이터의 이해 - 배추(2/3)</h1>
+			<p class="post__meta meta">
+				<svg class="icon icon-time" height="14" viewBox="0 0 16 16" width="14" xmlns="http://www.w3.org/2000/svg"><path d="m8-.0000003c-4.4 0-8 3.6-8 8 0 4.4000003 3.6 8.0000003 8 8.0000003 4.4 0 8-3.6 8-8.0000003 0-4.4-3.6-8-8-8zm0 14.4000003c-3.52 0-6.4-2.88-6.4-6.4000003 0-3.52 2.88-6.4 6.4-6.4 3.52 0 6.4 2.88 6.4 6.4 0 3.5200003-2.88 6.4000003-6.4 6.4000003zm.4-10.4000003h-1.2v4.8l4.16 2.5600003.64-1.04-3.6-2.1600003z"/></svg>
+				<time class="post__meta-date" datetime="2018-05-18T00:00:00">May 18, 2018</time>
+				<span class="post__meta-categories meta-categories">
+					<svg class="icon icon-category" height="16" viewBox="0 0 16 16" width="16" xmlns="http://www.w3.org/2000/svg"><path d="m7 2l1 2h8v11h-16v-13z"/></svg>
+					<a class="meta-categories__link" href="/categories/%ec%83%9d%ec%82%b0%ea%b3%bc-%ec%9c%a0%ed%86%b5" rel="category">생산과 유통</a></span>
+			</p>
+		</header>
+		<div class="post__content clearfix">
+			<center>
+<a href="/post/wholesale_market_data1">PREV : 도매시장 경락 데이터의 이해: 배추(1/3)</a>
+</center>
+<hr />
+<p>지난 Post에 이어서 이상치로 판단되는 10,000원 이상의 kg당 가격 케이스를 삭제한 <code>dat3</code> 데이터를 이용하여 도매시장 경매와 관련한 각 변수들 간의 관계를 눈으로 확인해보자. 이번 Post에서는 Cross tabulation라고도 불리는 교차분석 방법으로 명목형(categorical) 변수들 간의 관계를 보려고 한다. 교차분석은 두 변수 간의 관계를 한 변수는 X축, 다른 한 변수는 Y축 방향으로 각 변수의 요소들을 나열하고 각각의 경우에 대한 연속형 변수의 값을 보여주는 것이다. 예를들어 성별, 결혼유무 두 명목형 변수와 행복지수라는 하나의 연속형 변수가 있을 때 이를 <code>남-기혼</code>, <code>남-미혼</code>, <code>여-기혼</code>, <code>여-미혼</code>으로 표현되는 <code>2x2</code> 표를 만들고 각 케이스에 속하는 사람들의 행복지수 평균을 구해서 비교하는 것이 교차분석의 예이다.</p>
+<div id="--" class="section level5">
+<h5>연도-월 반입량</h5>
+<p>먼저 연도와 월 변수간의 관계를 도매시장 반입량(kg) <code>weight</code> 변수로 비교해보자. <code>input_year_month</code>는 <code>dat3</code>으로부터 <code>group_by()</code> 함수로 <code>year</code>, <code>month</code> 변수의 각각의 케이스별로 그룹화한 후 각 그룹 내에서 <code>mutate()</code> 함수로 <code>weight</code> 변수의 합을 구해서 새로운 <code>input</code> 변수를 만든다. 여기까지는 <code>dplyr</code> 패키지가 신속하게 처리해준다. 다음은 <code>tidyr</code> 패키지의 <code>spread()</code> 함수를 이용해서 2개 변수로 그룹핑된 데이터를 그중 1개의 변수를 x축 방향으로 늘어뜨린 형태로 펼쳐준다. MS엑셀의 피벗 테이블 기능과 유사한 결과를 만들어준다. 마지막으로 우리가 원하는 형태로 만들어진 데이터프레임은 <code>ungroup()</code> 함수를 이용해서 그룹을 풀어준다.(group화된 데이터프레임을 입력 데이터로 쓸 경우 오류가 발생하는 경우가 있다.) 문자값을 가진 첫번째 열을 제거한 숫자로만 구성된 데이터를 matrix형으로 형변환을 해서 1000을 나누어 단위를 ton으로 변환하여 <code>d5</code>에 저장한 후, <code>hist3D()</code> 함수를 이용해서 3D bar chart를 그린다. `hist3D()’에 대한 구체적인 설명은 <a href="">R study</a> Post를 참고하자.</p>
+<style>
+pre code, pre, code {
+  white-space: pre !important;
+  overflow-x: auto !important;
+  word-break: keep-all !important;
+  word-wrap: initial !important;
+}
+</style>
+<pre><code>  library(plotly); library(plot3D); library(dplyr); library(tidyr); library(ggplot2); library(gridExtra); library(knitr); library(kableExtra); library(reshape2)</code></pre>
+<pre class="r"><code>input_year_month &lt;- dat3 %&gt;% group_by(year,month) %&gt;% summarise(input=sum(weight,na.rm=T)) %&gt;% spread(month,input,fill=0) %&gt;% ungroup()
+d5 &lt;- as.matrix(input_year_month[,-1])/1000
+hist3D(z = d5, x = as.numeric(t(input_year_month[,1])), y = 1:12, scale = F, expand = 0.00005, bty = &quot;g&quot;, phi = 30, theta = 20, col = jet.col(100), alpha = 0.5, border = &quot;black&quot;, shade = 0.2, ltheta = 90, space = 0.4, ticktype = &quot;detailed&quot;, d = 2, xlab=&#39;year&#39;,ylab=&#39;month&#39;,zlab=&#39;ton&#39;)</code></pre>
+<p><img src="/post/2018-05-18-wholesale_market_data2_files/figure-html/unnamed-chunk-1-1.png" width="672" /></p>
+<p>위에서 3D 그래프로 표현된 연도-월별 반입량 정보와 아래에 테이블로 표현된 동일한 정보 중 어떤 것이 더 해석하기가 쉬운가? 대부분의 사람들의 뇌는 숫자가 가지는 상징성보다는 서로 다른 길이와 색깔을 가진 이미지를 인지하고 판별하는 것이 더 편할 것이다.(숫자가 훨씬 더 편한 천재과의 사람도 있겠지만..) 그런 의미에서 Agdatalab blog에서는 분석결과들을 되도록 그래프와 같은 시각적인 결과물로 설명하는 방향으로 하겠다.</p>
+<p>그래프를 보는 방법은 x축은 <code>year</code>, y축은 <code>month</code>를 표현한다. z축은 <code>weight</code> 변수로 단위는 <code>ton</code>이다. 색깔은 <code>ton</code>의 수치를 설명하는 것으로 파란색의 2만톤 이하 수준에서 하늘색을 거처 노란색의 8만톤 수준을 지나 주황색을 넘어 빨간색의 12만톤 수준까지를 표현한다. 월별로 보면 대체로 겨울철, 봄철의 반입량은 낮은 수준이고 여름이 지나고 가을철이 되면 급증하는 패턴을 보인다. 연도별로는 대체로 비슷한 수준에서 조금씩 변화하는 패턴을 보이나 2002년의 반입량이 유독 많은 것으로 나타나고 있다. 이정도의 차이가 실제로 있었는지는 <a href="">도매시장 통계 비교</a> Post에서의 과정으로 비교해보았을 때 문제가 있는 것으로 판단할 수 있다.</p>
+<div style="border: 1px solid #ddd; padding: 5px; overflow-y: scroll; height:200px; overflow-x: scroll; width:100%; ">
+<table class="table table-striped table-hover table-condensed table-responsive" style="font-size: 9px; margin-left: auto; margin-right: auto;">
+<caption style="font-size: initial !important;">
+<span id="tab:unnamed-chunk-2">Table 1: </span>연도-월별 반입량(kg) 테이블
+</caption>
+<thead>
+<tr>
+<th style="text-align:right;">
+year
+</th>
+<th style="text-align:right;">
+1
+</th>
+<th style="text-align:right;">
+2
+</th>
+<th style="text-align:right;">
+3
+</th>
+<th style="text-align:right;">
+4
+</th>
+<th style="text-align:right;">
+5
+</th>
+<th style="text-align:right;">
+6
+</th>
+<th style="text-align:right;">
+7
+</th>
+<th style="text-align:right;">
+8
+</th>
+<th style="text-align:right;">
+9
+</th>
+<th style="text-align:right;">
+10
+</th>
+<th style="text-align:right;">
+11
+</th>
+<th style="text-align:right;">
+12
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:right;">
+2002
+</td>
+<td style="text-align:right;">
+42962714
+</td>
+<td style="text-align:right;">
+48277054
+</td>
+<td style="text-align:right;">
+70692926
+</td>
+<td style="text-align:right;">
+67295449
+</td>
+<td style="text-align:right;">
+91646877
+</td>
+<td style="text-align:right;">
+96604993
+</td>
+<td style="text-align:right;">
+68669958
+</td>
+<td style="text-align:right;">
+91722286
+</td>
+<td style="text-align:right;">
+74729627
+</td>
+<td style="text-align:right;">
+99507670
+</td>
+<td style="text-align:right;">
+136692695
+</td>
+<td style="text-align:right;">
+61842804
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+2003
+</td>
+<td style="text-align:right;">
+23833437
+</td>
+<td style="text-align:right;">
+22728413
+</td>
+<td style="text-align:right;">
+36843906
+</td>
+<td style="text-align:right;">
+31103672
+</td>
+<td style="text-align:right;">
+51101451
+</td>
+<td style="text-align:right;">
+40177538
+</td>
+<td style="text-align:right;">
+44295922
+</td>
+<td style="text-align:right;">
+41971657
+</td>
+<td style="text-align:right;">
+51983815
+</td>
+<td style="text-align:right;">
+53420882
+</td>
+<td style="text-align:right;">
+62036307
+</td>
+<td style="text-align:right;">
+63368011
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+2004
+</td>
+<td style="text-align:right;">
+25803906
+</td>
+<td style="text-align:right;">
+32382033
+</td>
+<td style="text-align:right;">
+47945160
+</td>
+<td style="text-align:right;">
+52428848
+</td>
+<td style="text-align:right;">
+53578459
+</td>
+<td style="text-align:right;">
+59056152
+</td>
+<td style="text-align:right;">
+45809387
+</td>
+<td style="text-align:right;">
+41701555
+</td>
+<td style="text-align:right;">
+64129902
+</td>
+<td style="text-align:right;">
+56164805
+</td>
+<td style="text-align:right;">
+63160809
+</td>
+<td style="text-align:right;">
+50611827
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+2005
+</td>
+<td style="text-align:right;">
+14581110
+</td>
+<td style="text-align:right;">
+23009646
+</td>
+<td style="text-align:right;">
+39893107
+</td>
+<td style="text-align:right;">
+49226390
+</td>
+<td style="text-align:right;">
+47158993
+</td>
+<td style="text-align:right;">
+27890707
+</td>
+<td style="text-align:right;">
+39107026
+</td>
+<td style="text-align:right;">
+47251528
+</td>
+<td style="text-align:right;">
+47018861
+</td>
+<td style="text-align:right;">
+34449609
+</td>
+<td style="text-align:right;">
+66895360
+</td>
+<td style="text-align:right;">
+27990069
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+2006
+</td>
+<td style="text-align:right;">
+21385736
+</td>
+<td style="text-align:right;">
+19761402
+</td>
+<td style="text-align:right;">
+29848172
+</td>
+<td style="text-align:right;">
+29180219
+</td>
+<td style="text-align:right;">
+35793304
+</td>
+<td style="text-align:right;">
+51238835
+</td>
+<td style="text-align:right;">
+33884554
+</td>
+<td style="text-align:right;">
+35869478
+</td>
+<td style="text-align:right;">
+55989126
+</td>
+<td style="text-align:right;">
+48907258
+</td>
+<td style="text-align:right;">
+73647210
+</td>
+<td style="text-align:right;">
+50513317
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+2007
+</td>
+<td style="text-align:right;">
+23147681
+</td>
+<td style="text-align:right;">
+24474993
+</td>
+<td style="text-align:right;">
+30615630
+</td>
+<td style="text-align:right;">
+34941492
+</td>
+<td style="text-align:right;">
+41455976
+</td>
+<td style="text-align:right;">
+45775005
+</td>
+<td style="text-align:right;">
+37214979
+</td>
+<td style="text-align:right;">
+50240068
+</td>
+<td style="text-align:right;">
+57388458
+</td>
+<td style="text-align:right;">
+55829429
+</td>
+<td style="text-align:right;">
+76576917
+</td>
+<td style="text-align:right;">
+68757986
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+2008
+</td>
+<td style="text-align:right;">
+29535280
+</td>
+<td style="text-align:right;">
+26414434
+</td>
+<td style="text-align:right;">
+37077015
+</td>
+<td style="text-align:right;">
+34027396
+</td>
+<td style="text-align:right;">
+36424467
+</td>
+<td style="text-align:right;">
+42859343
+</td>
+<td style="text-align:right;">
+41605137
+</td>
+<td style="text-align:right;">
+45596333
+</td>
+<td style="text-align:right;">
+37519754
+</td>
+<td style="text-align:right;">
+56214159
+</td>
+<td style="text-align:right;">
+69368623
+</td>
+<td style="text-align:right;">
+48899156
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+2009
+</td>
+<td style="text-align:right;">
+24448029
+</td>
+<td style="text-align:right;">
+28122380
+</td>
+<td style="text-align:right;">
+31448538
+</td>
+<td style="text-align:right;">
+26712703
+</td>
+<td style="text-align:right;">
+34291741
+</td>
+<td style="text-align:right;">
+50850803
+</td>
+<td style="text-align:right;">
+46622134
+</td>
+<td style="text-align:right;">
+46067578
+</td>
+<td style="text-align:right;">
+76018713
+</td>
+<td style="text-align:right;">
+42403011
+</td>
+<td style="text-align:right;">
+77822293
+</td>
+<td style="text-align:right;">
+57491677
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+2010
+</td>
+<td style="text-align:right;">
+25041099
+</td>
+<td style="text-align:right;">
+20078791
+</td>
+<td style="text-align:right;">
+27925995
+</td>
+<td style="text-align:right;">
+27375844
+</td>
+<td style="text-align:right;">
+39099968
+</td>
+<td style="text-align:right;">
+51110789
+</td>
+<td style="text-align:right;">
+37722481
+</td>
+<td style="text-align:right;">
+48574478
+</td>
+<td style="text-align:right;">
+34400676
+</td>
+<td style="text-align:right;">
+38667270
+</td>
+<td style="text-align:right;">
+92814592
+</td>
+<td style="text-align:right;">
+52951621
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+2011
+</td>
+<td style="text-align:right;">
+22937475
+</td>
+<td style="text-align:right;">
+22719610
+</td>
+<td style="text-align:right;">
+32251485
+</td>
+<td style="text-align:right;">
+38525137
+</td>
+<td style="text-align:right;">
+46816700
+</td>
+<td style="text-align:right;">
+52476970
+</td>
+<td style="text-align:right;">
+38266825
+</td>
+<td style="text-align:right;">
+43221496
+</td>
+<td style="text-align:right;">
+61512920
+</td>
+<td style="text-align:right;">
+46149028
+</td>
+<td style="text-align:right;">
+85094466
+</td>
+<td style="text-align:right;">
+52348346
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+2012
+</td>
+<td style="text-align:right;">
+19125318
+</td>
+<td style="text-align:right;">
+25600891
+</td>
+<td style="text-align:right;">
+23375225
+</td>
+<td style="text-align:right;">
+16766116
+</td>
+<td style="text-align:right;">
+31891150
+</td>
+<td style="text-align:right;">
+40464365
+</td>
+<td style="text-align:right;">
+36537527
+</td>
+<td style="text-align:right;">
+43282005
+</td>
+<td style="text-align:right;">
+53480989
+</td>
+<td style="text-align:right;">
+46385153
+</td>
+<td style="text-align:right;">
+70874151
+</td>
+<td style="text-align:right;">
+66978830
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+2013
+</td>
+<td style="text-align:right;">
+29102194
+</td>
+<td style="text-align:right;">
+17558131
+</td>
+<td style="text-align:right;">
+28171810
+</td>
+<td style="text-align:right;">
+34759464
+</td>
+<td style="text-align:right;">
+36967753
+</td>
+<td style="text-align:right;">
+41023641
+</td>
+<td style="text-align:right;">
+40339292
+</td>
+<td style="text-align:right;">
+38735543
+</td>
+<td style="text-align:right;">
+54079189
+</td>
+<td style="text-align:right;">
+55397088
+</td>
+<td style="text-align:right;">
+81694823
+</td>
+<td style="text-align:right;">
+43083486
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+2014
+</td>
+<td style="text-align:right;">
+17610919
+</td>
+<td style="text-align:right;">
+16787776
+</td>
+<td style="text-align:right;">
+18549066
+</td>
+<td style="text-align:right;">
+21264361
+</td>
+<td style="text-align:right;">
+22969981
+</td>
+<td style="text-align:right;">
+24431696
+</td>
+<td style="text-align:right;">
+28010718
+</td>
+<td style="text-align:right;">
+32265813
+</td>
+<td style="text-align:right;">
+52744984
+</td>
+<td style="text-align:right;">
+51823665
+</td>
+<td style="text-align:right;">
+86520793
+</td>
+<td style="text-align:right;">
+65444224
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+2015
+</td>
+<td style="text-align:right;">
+27218042
+</td>
+<td style="text-align:right;">
+24701326
+</td>
+<td style="text-align:right;">
+29665005
+</td>
+<td style="text-align:right;">
+34666849
+</td>
+<td style="text-align:right;">
+33032177
+</td>
+<td style="text-align:right;">
+42198997
+</td>
+<td style="text-align:right;">
+36634746
+</td>
+<td style="text-align:right;">
+44366523
+</td>
+<td style="text-align:right;">
+66325782
+</td>
+<td style="text-align:right;">
+51367551
+</td>
+<td style="text-align:right;">
+43149542
+</td>
+<td style="text-align:right;">
+56268757
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+2016
+</td>
+<td style="text-align:right;">
+24195472
+</td>
+<td style="text-align:right;">
+23265098
+</td>
+<td style="text-align:right;">
+28777316
+</td>
+<td style="text-align:right;">
+26822983
+</td>
+<td style="text-align:right;">
+35972096
+</td>
+<td style="text-align:right;">
+43573911
+</td>
+<td style="text-align:right;">
+42021690
+</td>
+<td style="text-align:right;">
+37223863
+</td>
+<td style="text-align:right;">
+42623516
+</td>
+<td style="text-align:right;">
+49149074
+</td>
+<td style="text-align:right;">
+87997699
+</td>
+<td style="text-align:right;">
+59404588
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+2017
+</td>
+<td style="text-align:right;">
+28858107
+</td>
+<td style="text-align:right;">
+26446331
+</td>
+<td style="text-align:right;">
+33148533
+</td>
+<td style="text-align:right;">
+45895779
+</td>
+<td style="text-align:right;">
+47853316
+</td>
+<td style="text-align:right;">
+39566518
+</td>
+<td style="text-align:right;">
+37541788
+</td>
+<td style="text-align:right;">
+37589086
+</td>
+<td style="text-align:right;">
+61615720
+</td>
+<td style="text-align:right;">
+47411112
+</td>
+<td style="text-align:right;">
+101383303
+</td>
+<td style="text-align:right;">
+55015004
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+2018
+</td>
+<td style="text-align:right;">
+19137934
+</td>
+<td style="text-align:right;">
+21938897
+</td>
+<td style="text-align:right;">
+29623825
+</td>
+<td style="text-align:right;">
+27070707
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div id="--" class="section level5">
+<h5>연도-월 명목가격</h5>
+<p>다음은 연도-월별 kg당 가격에 대한 교차분석 결과를 3D 그래프로 살펴보자. R 코드는 반입량 분석 코드와 동일하며 그래프의 z축에 해당하는 값만 반입량에서 가격으로 변경하였다. 월별로 편차가 있기는 하나 2005년 이후부터 꾸준히 가격이 증하하는 추세를 보이고 있다. 이는 16년 전의 배추 가격이 현재의 가격과 동일한 가치를 가지는 것이 아니기 때문에 물가상승률에 대한 할인율의 적용이 필요하다. 물가상승 할인율 데이터는 <a href="">소비자물가지수와 할인율 계산</a> Post를 통해서 만들 수 있으며 이번 Post에서 사용한 데이터는 <a href="https://s3.amazonaws.com/agdatalab-share-folder/CPI_KOR_1975-2018(2002).csv">AWS S3 Agdata Lab 저장소</a>에서 받을 수 있다.</p>
+<pre class="r"><code>price_year_month &lt;- dat3 %&gt;% group_by(year,month) %&gt;% summarise(price=mean(price_per_kg,na.rm=T)) %&gt;% spread(month,price,fill=0) %&gt;% ungroup()
+d6 &lt;- as.matrix(price_year_month[,-1])
+hist3D(z = d6,  x = as.numeric(t(price_year_month[,1])), y = 1:12, scale = FALSE, expand = 0.002, bty = &quot;g&quot;, phi = 30, theta = 20, col = jet.col(100), alpha = 0.5, border = &quot;black&quot;, shade = 0.2, ltheta = 90, space = 0.4, ticktype = &quot;detailed&quot;, d = 2, xlab=&#39;year&#39;,ylab=&#39;month&#39;,zlab=&#39;ton&#39;)</code></pre>
+<p><img src="/post/2018-05-18-wholesale_market_data2_files/figure-html/unnamed-chunk-3-1.png" width="672" /></p>
+</div>
+<div id="--" class="section level5">
+<h5>연도-월 실질가격</h5>
+<p>할인율 적용은 농축수산물 소비자물가지수에 대한 할인율을 적용하였다. 2002년을 지수 100으로 두었을 때 매년 증가한 물가에 대한 정보를 담고 있으며 2018년에는 2002년 대비 76.5%나 증가한 것으로 나타났다. 3D 막대그래프도 앞선 그래프와 비교해보면 물가상승 효과가 완화된 것을 느낄 수 있다. 물가 상승을 통제한 표준화된 가격을 이용해서 그래프를 해석해보면 2004년 이전에는 배추가격이 비교적 낮았으나 2005, 2006년에는 9, 10월 가격이 급등하였고 2009년 이후에는 2009, 2010, 2015, 2016년에 3,4월 가격이 급등하는 현상이 나타나고 있다. 9월 가격 폭등은 2005, 2010, 2016에 두드러져서 5~6년 주기를 보여주고 있다. 3,4월 가격 급등도 6년 주기였는데.. 주기가 정말 존재하는지는 더 장기간의 데이터를 들여다봐야 알 수 있을 것이다.</p>
+<pre class="r"><code>ds_rate &lt;- read.csv(&#39;CPI_KOR_1975-2018(2002).csv&#39;,stringsAsFactors = F)
+price_year_month_norm &lt;- merge(price_year_month,ds_rate[,c(&#39;year&#39;,&quot;agri_2002&quot;)],by=&#39;year&#39;,all.x=T)
+price_year_month_norm[,2:13] &lt;- price_year_month_norm[,2:13]/price_year_month_norm$agri_2002*100
+d6b &lt;- as.matrix(price_year_month_norm[,2:13])
+hist3D(z = d6b,  x = as.numeric(t(price_year_month[,1])), y = 1:12, scale = FALSE, expand = 0.004, bty = &quot;g&quot;, phi = 30, theta = 20,
+       col = jet.col(100), alpha = 0.5, border = &quot;black&quot;, shade = 0.2, ltheta = 90,
+       space = 0.4, ticktype = &quot;detailed&quot;, d = 2, xlab=&#39;year&#39;,ylab=&#39;month&#39;,zlab=&#39;ton&#39;)</code></pre>
+<p><img src="/post/2018-05-18-wholesale_market_data2_files/figure-html/unnamed-chunk-4-1.png" width="672" /></p>
+<div style="border: 1px solid #ddd; padding: 5px; overflow-x: scroll; width:100%; ">
+<table class="table table-striped table-hover table-condensed table-responsive" style="font-size: 9px; margin-left: auto; margin-right: auto;">
+<caption style="font-size: initial !important;">
+<span id="tab:unnamed-chunk-5">Table 2: </span>농축수산물 물가지수(2002=100)
+</caption>
+<thead>
+<tr>
+<th style="text-align:left;">
+</th>
+<th style="text-align:right;">
+28
+</th>
+<th style="text-align:right;">
+29
+</th>
+<th style="text-align:right;">
+30
+</th>
+<th style="text-align:right;">
+31
+</th>
+<th style="text-align:right;">
+32
+</th>
+<th style="text-align:right;">
+33
+</th>
+<th style="text-align:right;">
+34
+</th>
+<th style="text-align:right;">
+35
+</th>
+<th style="text-align:right;">
+36
+</th>
+<th style="text-align:right;">
+37
+</th>
+<th style="text-align:right;">
+38
+</th>
+<th style="text-align:right;">
+39
+</th>
+<th style="text-align:right;">
+40
+</th>
+<th style="text-align:right;">
+41
+</th>
+<th style="text-align:right;">
+42
+</th>
+<th style="text-align:right;">
+43
+</th>
+<th style="text-align:right;">
+44
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+year
+</td>
+<td style="text-align:right;">
+2002
+</td>
+<td style="text-align:right;">
+2003.0000
+</td>
+<td style="text-align:right;">
+2004.0000
+</td>
+<td style="text-align:right;">
+2005.00
+</td>
+<td style="text-align:right;">
+2006.0000
+</td>
+<td style="text-align:right;">
+2007.0000
+</td>
+<td style="text-align:right;">
+2008.0000
+</td>
+<td style="text-align:right;">
+2009.0000
+</td>
+<td style="text-align:right;">
+2010.0000
+</td>
+<td style="text-align:right;">
+2011.0000
+</td>
+<td style="text-align:right;">
+2012.0000
+</td>
+<td style="text-align:right;">
+2013.0000
+</td>
+<td style="text-align:right;">
+2014.0000
+</td>
+<td style="text-align:right;">
+2015.0000
+</td>
+<td style="text-align:right;">
+2016.0000
+</td>
+<td style="text-align:right;">
+2017.0000
+</td>
+<td style="text-align:right;">
+2018.0000
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+agri_2002
+</td>
+<td style="text-align:right;">
+100
+</td>
+<td style="text-align:right;">
+105.9114
+</td>
+<td style="text-align:right;">
+115.3728
+</td>
+<td style="text-align:right;">
+117.54
+</td>
+<td style="text-align:right;">
+117.4034
+</td>
+<td style="text-align:right;">
+119.6466
+</td>
+<td style="text-align:right;">
+120.2338
+</td>
+<td style="text-align:right;">
+127.9828
+</td>
+<td style="text-align:right;">
+140.8153
+</td>
+<td style="text-align:right;">
+153.7703
+</td>
+<td style="text-align:right;">
+158.6003
+</td>
+<td style="text-align:right;">
+157.5723
+</td>
+<td style="text-align:right;">
+153.3338
+</td>
+<td style="text-align:right;">
+156.3754
+</td>
+<td style="text-align:right;">
+162.3177
+</td>
+<td style="text-align:right;">
+171.2452
+</td>
+<td style="text-align:right;">
+176.5538
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div style="border: 1px solid #ddd; padding: 5px; overflow-y: scroll; height:200px; overflow-x: scroll; width:100%; ">
+<table class="table table-striped table-hover table-condensed table-responsive" style="font-size: 9px; margin-left: auto; margin-right: auto;">
+<caption style="font-size: initial !important;">
+<span id="tab:unnamed-chunk-6">Table 3: </span>연도-월별 표준화 가격(원) 테이블
+</caption>
+<thead>
+<tr>
+<th style="text-align:right;">
+year
+</th>
+<th style="text-align:right;">
+1
+</th>
+<th style="text-align:right;">
+2
+</th>
+<th style="text-align:right;">
+3
+</th>
+<th style="text-align:right;">
+4
+</th>
+<th style="text-align:right;">
+5
+</th>
+<th style="text-align:right;">
+6
+</th>
+<th style="text-align:right;">
+7
+</th>
+<th style="text-align:right;">
+8
+</th>
+<th style="text-align:right;">
+9
+</th>
+<th style="text-align:right;">
+10
+</th>
+<th style="text-align:right;">
+11
+</th>
+<th style="text-align:right;">
+12
+</th>
+<th style="text-align:right;">
+agri_2002
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:right;">
+2002
+</td>
+<td style="text-align:right;">
+328.9339
+</td>
+<td style="text-align:right;">
+255.4899
+</td>
+<td style="text-align:right;">
+195.0449
+</td>
+<td style="text-align:right;">
+248.2397
+</td>
+<td style="text-align:right;">
+340.1846
+</td>
+<td style="text-align:right;">
+308.5471
+</td>
+<td style="text-align:right;">
+325.2800
+</td>
+<td style="text-align:right;">
+634.5808
+</td>
+<td style="text-align:right;">
+756.5524
+</td>
+<td style="text-align:right;">
+336.6922
+</td>
+<td style="text-align:right;">
+391.9465
+</td>
+<td style="text-align:right;">
+509.7149
+</td>
+<td style="text-align:right;">
+100.0000
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+2003
+</td>
+<td style="text-align:right;">
+579.1070
+</td>
+<td style="text-align:right;">
+559.6676
+</td>
+<td style="text-align:right;">
+686.6857
+</td>
+<td style="text-align:right;">
+649.9818
+</td>
+<td style="text-align:right;">
+432.1463
+</td>
+<td style="text-align:right;">
+235.4379
+</td>
+<td style="text-align:right;">
+438.8502
+</td>
+<td style="text-align:right;">
+446.1450
+</td>
+<td style="text-align:right;">
+530.3187
+</td>
+<td style="text-align:right;">
+639.2310
+</td>
+<td style="text-align:right;">
+443.7390
+</td>
+<td style="text-align:right;">
+289.4999
+</td>
+<td style="text-align:right;">
+105.9114
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+2004
+</td>
+<td style="text-align:right;">
+318.1134
+</td>
+<td style="text-align:right;">
+325.2147
+</td>
+<td style="text-align:right;">
+386.6100
+</td>
+<td style="text-align:right;">
+393.9538
+</td>
+<td style="text-align:right;">
+323.7136
+</td>
+<td style="text-align:right;">
+313.8300
+</td>
+<td style="text-align:right;">
+616.3850
+</td>
+<td style="text-align:right;">
+801.8333
+</td>
+<td style="text-align:right;">
+611.5661
+</td>
+<td style="text-align:right;">
+392.9901
+</td>
+<td style="text-align:right;">
+330.2263
+</td>
+<td style="text-align:right;">
+309.4946
+</td>
+<td style="text-align:right;">
+115.3728
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+2005
+</td>
+<td style="text-align:right;">
+412.9212
+</td>
+<td style="text-align:right;">
+492.0480
+</td>
+<td style="text-align:right;">
+414.8188
+</td>
+<td style="text-align:right;">
+360.5150
+</td>
+<td style="text-align:right;">
+335.5556
+</td>
+<td style="text-align:right;">
+384.0720
+</td>
+<td style="text-align:right;">
+605.9795
+</td>
+<td style="text-align:right;">
+718.5544
+</td>
+<td style="text-align:right;">
+858.1132
+</td>
+<td style="text-align:right;">
+1065.5765
+</td>
+<td style="text-align:right;">
+648.7451
+</td>
+<td style="text-align:right;">
+685.9792
+</td>
+<td style="text-align:right;">
+117.5400
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+2006
+</td>
+<td style="text-align:right;">
+874.5733
+</td>
+<td style="text-align:right;">
+788.2058
+</td>
+<td style="text-align:right;">
+839.0117
+</td>
+<td style="text-align:right;">
+910.7195
+</td>
+<td style="text-align:right;">
+715.9536
+</td>
+<td style="text-align:right;">
+467.4201
+</td>
+<td style="text-align:right;">
+798.2842
+</td>
+<td style="text-align:right;">
+1056.2761
+</td>
+<td style="text-align:right;">
+850.7737
+</td>
+<td style="text-align:right;">
+433.8754
+</td>
+<td style="text-align:right;">
+427.7878
+</td>
+<td style="text-align:right;">
+546.6782
+</td>
+<td style="text-align:right;">
+117.4034
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+2007
+</td>
+<td style="text-align:right;">
+681.7667
+</td>
+<td style="text-align:right;">
+600.2642
+</td>
+<td style="text-align:right;">
+766.4397
+</td>
+<td style="text-align:right;">
+684.4602
+</td>
+<td style="text-align:right;">
+491.5376
+</td>
+<td style="text-align:right;">
+509.4714
+</td>
+<td style="text-align:right;">
+640.1213
+</td>
+<td style="text-align:right;">
+700.5050
+</td>
+<td style="text-align:right;">
+835.2538
+</td>
+<td style="text-align:right;">
+887.1511
+</td>
+<td style="text-align:right;">
+633.6264
+</td>
+<td style="text-align:right;">
+531.2060
+</td>
+<td style="text-align:right;">
+119.6466
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+2008
+</td>
+<td style="text-align:right;">
+696.5296
+</td>
+<td style="text-align:right;">
+659.4743
+</td>
+<td style="text-align:right;">
+681.4981
+</td>
+<td style="text-align:right;">
+731.1317
+</td>
+<td style="text-align:right;">
+577.5426
+</td>
+<td style="text-align:right;">
+504.5869
+</td>
+<td style="text-align:right;">
+560.9232
+</td>
+<td style="text-align:right;">
+697.7616
+</td>
+<td style="text-align:right;">
+537.5262
+</td>
+<td style="text-align:right;">
+516.3726
+</td>
+<td style="text-align:right;">
+445.5876
+</td>
+<td style="text-align:right;">
+524.7863
+</td>
+<td style="text-align:right;">
+120.2338
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+2009
+</td>
+<td style="text-align:right;">
+751.5030
+</td>
+<td style="text-align:right;">
+700.0746
+</td>
+<td style="text-align:right;">
+883.5065
+</td>
+<td style="text-align:right;">
+1057.5808
+</td>
+<td style="text-align:right;">
+757.2663
+</td>
+<td style="text-align:right;">
+519.7291
+</td>
+<td style="text-align:right;">
+642.0332
+</td>
+<td style="text-align:right;">
+784.4269
+</td>
+<td style="text-align:right;">
+608.0196
+</td>
+<td style="text-align:right;">
+456.3308
+</td>
+<td style="text-align:right;">
+446.1216
+</td>
+<td style="text-align:right;">
+531.2198
+</td>
+<td style="text-align:right;">
+127.9828
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+2010
+</td>
+<td style="text-align:right;">
+812.4751
+</td>
+<td style="text-align:right;">
+885.9791
+</td>
+<td style="text-align:right;">
+1183.6073
+</td>
+<td style="text-align:right;">
+1248.2270
+</td>
+<td style="text-align:right;">
+821.6218
+</td>
+<td style="text-align:right;">
+593.0021
+</td>
+<td style="text-align:right;">
+843.2487
+</td>
+<td style="text-align:right;">
+786.1908
+</td>
+<td style="text-align:right;">
+1090.6111
+</td>
+<td style="text-align:right;">
+914.8932
+</td>
+<td style="text-align:right;">
+611.3026
+</td>
+<td style="text-align:right;">
+684.4906
+</td>
+<td style="text-align:right;">
+140.8153
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+2011
+</td>
+<td style="text-align:right;">
+984.3065
+</td>
+<td style="text-align:right;">
+822.9268
+</td>
+<td style="text-align:right;">
+885.4621
+</td>
+<td style="text-align:right;">
+650.4374
+</td>
+<td style="text-align:right;">
+478.1856
+</td>
+<td style="text-align:right;">
+498.5395
+</td>
+<td style="text-align:right;">
+754.0444
+</td>
+<td style="text-align:right;">
+902.8670
+</td>
+<td style="text-align:right;">
+686.8772
+</td>
+<td style="text-align:right;">
+513.5519
+</td>
+<td style="text-align:right;">
+402.1257
+</td>
+<td style="text-align:right;">
+607.5711
+</td>
+<td style="text-align:right;">
+153.7703
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+2012
+</td>
+<td style="text-align:right;">
+852.6064
+</td>
+<td style="text-align:right;">
+896.4255
+</td>
+<td style="text-align:right;">
+993.2098
+</td>
+<td style="text-align:right;">
+1002.7096
+</td>
+<td style="text-align:right;">
+700.4673
+</td>
+<td style="text-align:right;">
+565.5538
+</td>
+<td style="text-align:right;">
+632.6314
+</td>
+<td style="text-align:right;">
+740.4492
+</td>
+<td style="text-align:right;">
+906.2028
+</td>
+<td style="text-align:right;">
+680.9745
+</td>
+<td style="text-align:right;">
+567.6611
+</td>
+<td style="text-align:right;">
+685.7086
+</td>
+<td style="text-align:right;">
+158.6003
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+2013
+</td>
+<td style="text-align:right;">
+883.4681
+</td>
+<td style="text-align:right;">
+888.9639
+</td>
+<td style="text-align:right;">
+913.3177
+</td>
+<td style="text-align:right;">
+874.6958
+</td>
+<td style="text-align:right;">
+670.5765
+</td>
+<td style="text-align:right;">
+635.1313
+</td>
+<td style="text-align:right;">
+689.8775
+</td>
+<td style="text-align:right;">
+919.2112
+</td>
+<td style="text-align:right;">
+749.0090
+</td>
+<td style="text-align:right;">
+501.5369
+</td>
+<td style="text-align:right;">
+443.0581
+</td>
+<td style="text-align:right;">
+511.4607
+</td>
+<td style="text-align:right;">
+157.5723
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+2014
+</td>
+<td style="text-align:right;">
+647.4542
+</td>
+<td style="text-align:right;">
+658.3347
+</td>
+<td style="text-align:right;">
+687.2188
+</td>
+<td style="text-align:right;">
+691.0286
+</td>
+<td style="text-align:right;">
+566.5642
+</td>
+<td style="text-align:right;">
+689.9399
+</td>
+<td style="text-align:right;">
+727.9458
+</td>
+<td style="text-align:right;">
+774.6125
+</td>
+<td style="text-align:right;">
+732.1097
+</td>
+<td style="text-align:right;">
+606.1082
+</td>
+<td style="text-align:right;">
+525.3692
+</td>
+<td style="text-align:right;">
+660.4099
+</td>
+<td style="text-align:right;">
+153.3338
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+2015
+</td>
+<td style="text-align:right;">
+798.8194
+</td>
+<td style="text-align:right;">
+788.5308
+</td>
+<td style="text-align:right;">
+956.2210
+</td>
+<td style="text-align:right;">
+1057.5704
+</td>
+<td style="text-align:right;">
+1046.9511
+</td>
+<td style="text-align:right;">
+834.7957
+</td>
+<td style="text-align:right;">
+715.2111
+</td>
+<td style="text-align:right;">
+845.4188
+</td>
+<td style="text-align:right;">
+672.2858
+</td>
+<td style="text-align:right;">
+594.6396
+</td>
+<td style="text-align:right;">
+582.6019
+</td>
+<td style="text-align:right;">
+693.7847
+</td>
+<td style="text-align:right;">
+156.3754
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+2016
+</td>
+<td style="text-align:right;">
+949.2591
+</td>
+<td style="text-align:right;">
+921.6549
+</td>
+<td style="text-align:right;">
+1249.1863
+</td>
+<td style="text-align:right;">
+1235.5314
+</td>
+<td style="text-align:right;">
+922.2614
+</td>
+<td style="text-align:right;">
+790.1209
+</td>
+<td style="text-align:right;">
+868.0531
+</td>
+<td style="text-align:right;">
+1160.7954
+</td>
+<td style="text-align:right;">
+1277.3529
+</td>
+<td style="text-align:right;">
+855.2570
+</td>
+<td style="text-align:right;">
+672.3514
+</td>
+<td style="text-align:right;">
+748.7250
+</td>
+<td style="text-align:right;">
+162.3177
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+2017
+</td>
+<td style="text-align:right;">
+857.8644
+</td>
+<td style="text-align:right;">
+940.6306
+</td>
+<td style="text-align:right;">
+1024.2248
+</td>
+<td style="text-align:right;">
+816.6258
+</td>
+<td style="text-align:right;">
+689.8377
+</td>
+<td style="text-align:right;">
+669.1177
+</td>
+<td style="text-align:right;">
+843.3545
+</td>
+<td style="text-align:right;">
+1101.5343
+</td>
+<td style="text-align:right;">
+928.2366
+</td>
+<td style="text-align:right;">
+595.0372
+</td>
+<td style="text-align:right;">
+494.5139
+</td>
+<td style="text-align:right;">
+677.9551
+</td>
+<td style="text-align:right;">
+171.2452
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+2018
+</td>
+<td style="text-align:right;">
+784.5471
+</td>
+<td style="text-align:right;">
+899.3240
+</td>
+<td style="text-align:right;">
+836.3409
+</td>
+<td style="text-align:right;">
+942.2432
+</td>
+<td style="text-align:right;">
+0.0000
+</td>
+<td style="text-align:right;">
+0.0000
+</td>
+<td style="text-align:right;">
+0.0000
+</td>
+<td style="text-align:right;">
+0.0000
+</td>
+<td style="text-align:right;">
+0.0000
+</td>
+<td style="text-align:right;">
+0.0000
+</td>
+<td style="text-align:right;">
+0.0000
+</td>
+<td style="text-align:right;">
+0.0000
+</td>
+<td style="text-align:right;">
+176.5538
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<hr />
+</div>
+<div id="--" class="section level5">
+<h5>산지-월 출하량</h5>
+<p>산지-월별 출하량 패턴을 살펴보자. R 코드는 연도-월별 반입량 계산 코드에서 연도 대신 산지 변수 <code>sanji_wide2</code>가 들어갔다. 3D 그래프의 각도는 <code>hist3D()</code> 함수의 <code>phi</code>, <code>theta</code> 파라메터를 그래프의 패턴이 눈에 잘 보이도록 조정하면 된다. 산지의 개수는 총 22개이지만 출하량의 비중이 낮은 8개의 광역도 단위 지역만 포함시켰다. 이를 위해 산지별 총 출하량 <code>total</code> 변수를 만들어서 내림차순 정렬을 해서 상위 9개 (결측지역 1개 포함)만으로 그래프용 <code>d8</code> 테이블을 생성하였다.</p>
+<p>먼저 전남과 강원 지역이 출하량(동일한 물동량이지만 산지기준에서는 출하의 개념이고 도매시장 기준에서는 출하된 물량을 반입하기 때문에 반입량이 된다)에서 앞도적으로 많다. 전남은 1~4월, 12월이 주 출하기이고 강원은 7~10월이 주 출하기이다. 세번째 출하지인 경북은 전남, 강원의 화력이 교체되는 틈새인 6, 11월이 주 출하기이고 네번째 출하지인 충남 역시 틈새 중 5, 11월이 주 출하기이다. 전남과 거리가 가까운 충남, 경남은 5월이 상반기 주력이고 강원도와 거리가 가까운 경북,경기,충북은 6월이 상반기 주력인 것은 지리적으로도 해석이 잘 된다. 나머지 지역들이 최대 산지인 전남과 강원이 교체되는 틈새 시기에 출하량이 많은 것은 기후요인 때문인지 전략적인 선택인지는 파악이 어려우나 두 요인의 적절한 결합확률에 의한 의사결정으로 볼 수는 있을 것 같다.</p>
+<pre class="r"><code>input_sanji_month &lt;- dat3 %&gt;% group_by(sanji_wide2,month) %&gt;% summarise(input=sum(weight,na.rm=T)) %&gt;% spread(month,input,fill=0) %&gt;% ungroup()
+input_sanji_month &lt;- input_sanji_month %&gt;% mutate(total=apply(input_sanji_month[,-1],1,sum)) %&gt;% arrange(desc(total))
+d8 &lt;- as.matrix(input_sanji_month[1:9,2:13])/1000
+hist3D(z = d8, x=1:9, y=1:12, scale = FALSE, expand = 0.000005, bty = &quot;g&quot;, phi = 40, theta = 15, col = jet.col(100), alpha = 0.5, border = &quot;black&quot;, shade = 0.2, ltheta = 90, space = 0.4, ticktype = &quot;detailed&quot;, d = 2, xlab=&quot;전남 강원 경북 결측 충남 경기 전북 경남 충북&quot;, ylab=&quot;month&quot;, zlab=&#39;ton&#39;, cex.lab=1.1)</code></pre>
+<p><img src="/post/2018-05-18-wholesale_market_data2_files/figure-html/unnamed-chunk-7-1.png" width="672" /></p>
+<div style="border: 1px solid #ddd; padding: 5px; overflow-y: scroll; height:200px; overflow-x: scroll; width:100%; ">
+<table class="table table-striped table-hover table-condensed table-responsive" style="font-size: 9px; margin-left: auto; margin-right: auto;">
+<caption style="font-size: initial !important;">
+<span id="tab:unnamed-chunk-8">Table 4: </span>산지-월별 반입량(kg) 테이블
+</caption>
+<thead>
+<tr>
+<th style="text-align:left;">
+sanji_wide2
+</th>
+<th style="text-align:right;">
+1
+</th>
+<th style="text-align:right;">
+2
+</th>
+<th style="text-align:right;">
+3
+</th>
+<th style="text-align:right;">
+4
+</th>
+<th style="text-align:right;">
+5
+</th>
+<th style="text-align:right;">
+6
+</th>
+<th style="text-align:right;">
+7
+</th>
+<th style="text-align:right;">
+8
+</th>
+<th style="text-align:right;">
+9
+</th>
+<th style="text-align:right;">
+10
+</th>
+<th style="text-align:right;">
+11
+</th>
+<th style="text-align:right;">
+12
+</th>
+<th style="text-align:right;">
+total
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+전라남도
+</td>
+<td style="text-align:right;">
+272451589
+</td>
+<td style="text-align:right;">
+285623223
+</td>
+<td style="text-align:right;">
+391297690
+</td>
+<td style="text-align:right;">
+345340794
+</td>
+<td style="text-align:right;">
+168831433
+</td>
+<td style="text-align:right;">
+44579782
+</td>
+<td style="text-align:right;">
+24744648
+</td>
+<td style="text-align:right;">
+26104559
+</td>
+<td style="text-align:right;">
+34575110
+</td>
+<td style="text-align:right;">
+26142447.7
+</td>
+<td style="text-align:right;">
+192196093
+</td>
+<td style="text-align:right;">
+438397327
+</td>
+<td style="text-align:right;">
+2250284694
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+강원도
+</td>
+<td style="text-align:right;">
+11774735
+</td>
+<td style="text-align:right;">
+11736343
+</td>
+<td style="text-align:right;">
+14569907
+</td>
+<td style="text-align:right;">
+11288809
+</td>
+<td style="text-align:right;">
+17228423
+</td>
+<td style="text-align:right;">
+159306708
+</td>
+<td style="text-align:right;">
+350601561
+</td>
+<td style="text-align:right;">
+452899069
+</td>
+<td style="text-align:right;">
+567863006
+</td>
+<td style="text-align:right;">
+400697285.7
+</td>
+<td style="text-align:right;">
+197651512
+</td>
+<td style="text-align:right;">
+35307548
+</td>
+<td style="text-align:right;">
+2230924908
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+경상북도
+</td>
+<td style="text-align:right;">
+6458520
+</td>
+<td style="text-align:right;">
+4542492
+</td>
+<td style="text-align:right;">
+6084389
+</td>
+<td style="text-align:right;">
+8963914
+</td>
+<td style="text-align:right;">
+30649125
+</td>
+<td style="text-align:right;">
+159536656
+</td>
+<td style="text-align:right;">
+69268329
+</td>
+<td style="text-align:right;">
+22348735
+</td>
+<td style="text-align:right;">
+20196983
+</td>
+<td style="text-align:right;">
+96632016.4
+</td>
+<td style="text-align:right;">
+188207382
+</td>
+<td style="text-align:right;">
+43319494
+</td>
+<td style="text-align:right;">
+656208035
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+a
+</td>
+<td style="text-align:right;">
+24612327
+</td>
+<td style="text-align:right;">
+22756961
+</td>
+<td style="text-align:right;">
+28147975
+</td>
+<td style="text-align:right;">
+33138457
+</td>
+<td style="text-align:right;">
+47237010
+</td>
+<td style="text-align:right;">
+47352269
+</td>
+<td style="text-align:right;">
+34850120
+</td>
+<td style="text-align:right;">
+40698816
+</td>
+<td style="text-align:right;">
+55706993
+</td>
+<td style="text-align:right;">
+51943961.2
+</td>
+<td style="text-align:right;">
+81594780
+</td>
+<td style="text-align:right;">
+71286634
+</td>
+<td style="text-align:right;">
+539326304
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+충청남도
+</td>
+<td style="text-align:right;">
+5520379
+</td>
+<td style="text-align:right;">
+4695174
+</td>
+<td style="text-align:right;">
+4795902
+</td>
+<td style="text-align:right;">
+36142730
+</td>
+<td style="text-align:right;">
+128852929
+</td>
+<td style="text-align:right;">
+57567078
+</td>
+<td style="text-align:right;">
+7857009
+</td>
+<td style="text-align:right;">
+6952307
+</td>
+<td style="text-align:right;">
+8611556
+</td>
+<td style="text-align:right;">
+16388019.9
+</td>
+<td style="text-align:right;">
+172443440
+</td>
+<td style="text-align:right;">
+37637738
+</td>
+<td style="text-align:right;">
+487464263
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+경기도
+</td>
+<td style="text-align:right;">
+18423376
+</td>
+<td style="text-align:right;">
+20255771
+</td>
+<td style="text-align:right;">
+27458383
+</td>
+<td style="text-align:right;">
+26129743
+</td>
+<td style="text-align:right;">
+44392788
+</td>
+<td style="text-align:right;">
+60755673
+</td>
+<td style="text-align:right;">
+33248417
+</td>
+<td style="text-align:right;">
+34020026
+</td>
+<td style="text-align:right;">
+41228859
+</td>
+<td style="text-align:right;">
+49828228.6
+</td>
+<td style="text-align:right;">
+93676923
+</td>
+<td style="text-align:right;">
+29963316
+</td>
+<td style="text-align:right;">
+479381503
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+전라북도
+</td>
+<td style="text-align:right;">
+8540310
+</td>
+<td style="text-align:right;">
+7121481
+</td>
+<td style="text-align:right;">
+9964322
+</td>
+<td style="text-align:right;">
+17606439
+</td>
+<td style="text-align:right;">
+34794211
+</td>
+<td style="text-align:right;">
+25642147
+</td>
+<td style="text-align:right;">
+22625761
+</td>
+<td style="text-align:right;">
+24700055
+</td>
+<td style="text-align:right;">
+26502776
+</td>
+<td style="text-align:right;">
+23046555.7
+</td>
+<td style="text-align:right;">
+104471476
+</td>
+<td style="text-align:right;">
+59459358
+</td>
+<td style="text-align:right;">
+364474890
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+경상남도
+</td>
+<td style="text-align:right;">
+14093494
+</td>
+<td style="text-align:right;">
+11660828
+</td>
+<td style="text-align:right;">
+14553418
+</td>
+<td style="text-align:right;">
+24836696
+</td>
+<td style="text-align:right;">
+91468516
+</td>
+<td style="text-align:right;">
+28925525
+</td>
+<td style="text-align:right;">
+17305445
+</td>
+<td style="text-align:right;">
+17237615
+</td>
+<td style="text-align:right;">
+20145522
+</td>
+<td style="text-align:right;">
+20499100.8
+</td>
+<td style="text-align:right;">
+40568343
+</td>
+<td style="text-align:right;">
+57112384
+</td>
+<td style="text-align:right;">
+358406887
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+충청북도
+</td>
+<td style="text-align:right;">
+4929310
+</td>
+<td style="text-align:right;">
+5377465
+</td>
+<td style="text-align:right;">
+7363980
+</td>
+<td style="text-align:right;">
+7374926
+</td>
+<td style="text-align:right;">
+25288796
+</td>
+<td style="text-align:right;">
+75650595
+</td>
+<td style="text-align:right;">
+17688542
+</td>
+<td style="text-align:right;">
+11877698
+</td>
+<td style="text-align:right;">
+16639437
+</td>
+<td style="text-align:right;">
+62080145.4
+</td>
+<td style="text-align:right;">
+74392803
+</td>
+<td style="text-align:right;">
+10568910
+</td>
+<td style="text-align:right;">
+319232606
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+대구광역시
+</td>
+<td style="text-align:right;">
+10860669
+</td>
+<td style="text-align:right;">
+10972181
+</td>
+<td style="text-align:right;">
+17504795
+</td>
+<td style="text-align:right;">
+20952462
+</td>
+<td style="text-align:right;">
+20476594
+</td>
+<td style="text-align:right;">
+18021573
+</td>
+<td style="text-align:right;">
+17328868
+</td>
+<td style="text-align:right;">
+19542304
+</td>
+<td style="text-align:right;">
+20039795
+</td>
+<td style="text-align:right;">
+17668916.6
+</td>
+<td style="text-align:right;">
+25911586
+</td>
+<td style="text-align:right;">
+26091523
+</td>
+<td style="text-align:right;">
+225371268
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+광주광역시
+</td>
+<td style="text-align:right;">
+7818704
+</td>
+<td style="text-align:right;">
+8015506
+</td>
+<td style="text-align:right;">
+11081844
+</td>
+<td style="text-align:right;">
+14753483
+</td>
+<td style="text-align:right;">
+15379547
+</td>
+<td style="text-align:right;">
+12018856
+</td>
+<td style="text-align:right;">
+13173805
+</td>
+<td style="text-align:right;">
+15386925
+</td>
+<td style="text-align:right;">
+21259303
+</td>
+<td style="text-align:right;">
+17909855.5
+</td>
+<td style="text-align:right;">
+22692855
+</td>
+<td style="text-align:right;">
+19051830
+</td>
+<td style="text-align:right;">
+178542513
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+인천광역시
+</td>
+<td style="text-align:right;">
+7057140
+</td>
+<td style="text-align:right;">
+7195418
+</td>
+<td style="text-align:right;">
+10188119
+</td>
+<td style="text-align:right;">
+10678534
+</td>
+<td style="text-align:right;">
+12921897
+</td>
+<td style="text-align:right;">
+14319676
+</td>
+<td style="text-align:right;">
+11028059
+</td>
+<td style="text-align:right;">
+14616622
+</td>
+<td style="text-align:right;">
+15066526
+</td>
+<td style="text-align:right;">
+12968284.8
+</td>
+<td style="text-align:right;">
+22738159
+</td>
+<td style="text-align:right;">
+11695011
+</td>
+<td style="text-align:right;">
+150473446
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+서울특별시
+</td>
+<td style="text-align:right;">
+6188574
+</td>
+<td style="text-align:right;">
+6033594
+</td>
+<td style="text-align:right;">
+8820347
+</td>
+<td style="text-align:right;">
+12849784
+</td>
+<td style="text-align:right;">
+12859200
+</td>
+<td style="text-align:right;">
+13131220
+</td>
+<td style="text-align:right;">
+10276307
+</td>
+<td style="text-align:right;">
+12591109
+</td>
+<td style="text-align:right;">
+15650745
+</td>
+<td style="text-align:right;">
+13580500.1
+</td>
+<td style="text-align:right;">
+18670872
+</td>
+<td style="text-align:right;">
+10121030
+</td>
+<td style="text-align:right;">
+140773282
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+부산광역시
+</td>
+<td style="text-align:right;">
+9334705
+</td>
+<td style="text-align:right;">
+7630092
+</td>
+<td style="text-align:right;">
+10106754
+</td>
+<td style="text-align:right;">
+12205440
+</td>
+<td style="text-align:right;">
+13267898
+</td>
+<td style="text-align:right;">
+12880663
+</td>
+<td style="text-align:right;">
+9258703
+</td>
+<td style="text-align:right;">
+9890031
+</td>
+<td style="text-align:right;">
+10267594
+</td>
+<td style="text-align:right;">
+8425692.6
+</td>
+<td style="text-align:right;">
+13073406
+</td>
+<td style="text-align:right;">
+12483461
+</td>
+<td style="text-align:right;">
+128824440
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+대전광역시
+</td>
+<td style="text-align:right;">
+4829160
+</td>
+<td style="text-align:right;">
+5455602
+</td>
+<td style="text-align:right;">
+7182840
+</td>
+<td style="text-align:right;">
+8684925
+</td>
+<td style="text-align:right;">
+12379801
+</td>
+<td style="text-align:right;">
+13236149
+</td>
+<td style="text-align:right;">
+10383204
+</td>
+<td style="text-align:right;">
+11538815
+</td>
+<td style="text-align:right;">
+11231269
+</td>
+<td style="text-align:right;">
+10671476.0
+</td>
+<td style="text-align:right;">
+18726272
+</td>
+<td style="text-align:right;">
+7628994
+</td>
+<td style="text-align:right;">
+121948508
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+울산광역시
+</td>
+<td style="text-align:right;">
+3578635
+</td>
+<td style="text-align:right;">
+3144309
+</td>
+<td style="text-align:right;">
+4011247
+</td>
+<td style="text-align:right;">
+3583837
+</td>
+<td style="text-align:right;">
+5052882
+</td>
+<td style="text-align:right;">
+4751066
+</td>
+<td style="text-align:right;">
+3634282
+</td>
+<td style="text-align:right;">
+3949198
+</td>
+<td style="text-align:right;">
+4581148
+</td>
+<td style="text-align:right;">
+3852079.9
+</td>
+<td style="text-align:right;">
+5868402
+</td>
+<td style="text-align:right;">
+7464629
+</td>
+<td style="text-align:right;">
+53471715
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+제주특별자치도
+</td>
+<td style="text-align:right;">
+2452003
+</td>
+<td style="text-align:right;">
+2049893
+</td>
+<td style="text-align:right;">
+2714199
+</td>
+<td style="text-align:right;">
+3531723
+</td>
+<td style="text-align:right;">
+4963235
+</td>
+<td style="text-align:right;">
+1624310
+</td>
+<td style="text-align:right;">
+1010694
+</td>
+<td style="text-align:right;">
+1311634
+</td>
+<td style="text-align:right;">
+1994195
+</td>
+<td style="text-align:right;">
+866912.9
+</td>
+<td style="text-align:right;">
+2829531
+</td>
+<td style="text-align:right;">
+3373083
+</td>
+<td style="text-align:right;">
+28721413
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+중국
+</td>
+<td style="text-align:right;">
+821
+</td>
+<td style="text-align:right;">
+871
+</td>
+<td style="text-align:right;">
+6601
+</td>
+<td style="text-align:right;">
+700
+</td>
+<td style="text-align:right;">
+10104
+</td>
+<td style="text-align:right;">
+312
+</td>
+<td style="text-align:right;">
+100
+</td>
+<td style="text-align:right;">
+504
+</td>
+<td style="text-align:right;">
+1214
+</td>
+<td style="text-align:right;">
+45155.0
+</td>
+<td style="text-align:right;">
+14340
+</td>
+<td style="text-align:right;">
+6740
+</td>
+<td style="text-align:right;">
+87462
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+미국
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+10
+</td>
+<td style="text-align:right;">
+20
+</td>
+<td style="text-align:right;">
+4
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+7950
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0.0
+</td>
+<td style="text-align:right;">
+1411
+</td>
+<td style="text-align:right;">
+691
+</td>
+<td style="text-align:right;">
+10086
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+러시아
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+5000
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0.0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+5000
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+기타국
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+310
+</td>
+<td style="text-align:right;">
+320
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0.0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+630
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+태국
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+130.0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+130
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div id="--" class="section level5">
+<h5>산지-월 실질가격</h5>
+<p>이후 분석에서도 할인율 적용 가격이 계속 사용될 것이므로 할인율 적용 가격을 <code>price_per_kg_norm</code>의 이름으로 만들어보자. <code>dat3</code> row 데이터에 <code>year</code>를 기준으로 <code>agri_2002</code> 물가지수 변수를 merge하고 <code>price_per_kg</code>를 <code>agri_2002</code>로 나눈 뒤 다시 100을 곱해서 할인율이 적용된 가격 변수 <code>price_per_kg_norm</code>을 만든다.</p>
+<pre class="r"><code>dat3 &lt;- merge(dat3, ds_rate[,c(&#39;year&#39;,&#39;agri_2002&#39;)], by=&#39;year&#39;, all.x=T)
+dat3 &lt;- dat3 %&gt;% mutate(price_per_kg_norm = price_per_kg / agri_2002 * 100)</code></pre>
+<p>이제 표준화된 가격이 산지-월별로 어떤 차이와 추세를 보이는지 살펴보자. 이제부터는 <code>price_per_kg_norm</code> 변수의 평균을 구해서 분석용 테이블을 만들 것이다. 아래 code의 두번째줄에서 <code>input_sanji_month[,c(1,14)]</code>를 기준으로 merge를 하는 이유는 출하량 기준으로 정렬된 상위 9개 산지 리스트와 동일한 리스트를 기준으로 가격 분석 결과를 보여주기 위해서이다. R의 <code>merge()</code> 함수는 key 변수를 기준으로 다시 정렬을 해버리기 때문에 기존에 정렬된 순서가 풀려버리게 되므로 반드시 다시 <code>arrange()</code> 함수를 이용해서 재정렬을 해주는 것이 필요하다.</p>
+<p>산지-월별 가격 분포를 보면 경북 지역의 가격이 유난히 높은 것이 특징이다. 주산지인 전남 강원은 물량이 워낙 많아서인지 가격이 낮은 편이다. 나머지 지역에서는 주 출하기가 아닌 시즌에 가격이 높은 편이고 주 출하기에는 전남, 강원과 비슷한 수준인 것을 알 수 있다. 경북 지역의 가격은 이상치에 가깝다고 보여지는데 그 이유는 역시 현장 전문가에게 자문을 구해봐야 알 수 있을 것이다.</p>
+<pre class="r"><code>price_sanji_month &lt;- dat3 %&gt;% group_by(sanji_wide2,month) %&gt;% summarise(price=mean(price_per_kg_norm,na.rm=T)) %&gt;% spread(month,price,fill=0) %&gt;% ungroup()
+price_sanji_month &lt;- merge(input_sanji_month[,c(1,14)],price_sanji_month, by=&#39;sanji_wide2&#39;,all.x=T) %&gt;% arrange(desc(total))
+d8b &lt;- as.matrix(price_sanji_month[1:9,3:14])
+hist3D(z = d8b, x=1:9, y=1:12, scale = FALSE, expand = 0.001, bty = &quot;g&quot;, phi = 40, theta = 15,   col = jet.col(100), alpha = 0.5, border = &quot;black&quot;, shade = 0.2, ltheta = 90, space = 0.4, ticktype = &quot;detailed&quot;, d = 2, xlab=&quot;전남 강원 경북 결측 충남 경기 전북 경남 충북&quot;, ylab=&quot;month&quot;, zlab=&#39;ton&#39;, cex.lab=1.1)</code></pre>
+<p><img src="/post/2018-05-18-wholesale_market_data2_files/figure-html/unnamed-chunk-10-1.png" width="672" /></p>
+<div style="border: 1px solid #ddd; padding: 5px; overflow-y: scroll; height:200px; overflow-x: scroll; width:100%; ">
+<table class="table table-striped table-hover table-condensed table-responsive" style="font-size: 9px; margin-left: auto; margin-right: auto;">
+<caption style="font-size: initial !important;">
+<span id="tab:unnamed-chunk-11">Table 5: </span>산지-월별 표준화 가격(원) 테이블
+</caption>
+<thead>
+<tr>
+<th style="text-align:left;">
+sanji_wide2
+</th>
+<th style="text-align:right;">
+total
+</th>
+<th style="text-align:right;">
+1
+</th>
+<th style="text-align:right;">
+2
+</th>
+<th style="text-align:right;">
+3
+</th>
+<th style="text-align:right;">
+4
+</th>
+<th style="text-align:right;">
+5
+</th>
+<th style="text-align:right;">
+6
+</th>
+<th style="text-align:right;">
+7
+</th>
+<th style="text-align:right;">
+8
+</th>
+<th style="text-align:right;">
+9
+</th>
+<th style="text-align:right;">
+10
+</th>
+<th style="text-align:right;">
+11
+</th>
+<th style="text-align:right;">
+12
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+전라남도
+</td>
+<td style="text-align:right;">
+2250284694
+</td>
+<td style="text-align:right;">
+378.1741
+</td>
+<td style="text-align:right;">
+385.4931
+</td>
+<td style="text-align:right;">
+433.0306
+</td>
+<td style="text-align:right;">
+458.9125
+</td>
+<td style="text-align:right;">
+357.7598
+</td>
+<td style="text-align:right;">
+289.9446
+</td>
+<td style="text-align:right;">
+381.4874
+</td>
+<td style="text-align:right;">
+531.5526
+</td>
+<td style="text-align:right;">
+569.4238
+</td>
+<td style="text-align:right;">
+436.6527
+</td>
+<td style="text-align:right;">
+383.3603
+</td>
+<td style="text-align:right;">
+355.2164
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+강원도
+</td>
+<td style="text-align:right;">
+2230924908
+</td>
+<td style="text-align:right;">
+500.3613
+</td>
+<td style="text-align:right;">
+516.1159
+</td>
+<td style="text-align:right;">
+615.4392
+</td>
+<td style="text-align:right;">
+717.0068
+</td>
+<td style="text-align:right;">
+563.8632
+</td>
+<td style="text-align:right;">
+327.3735
+</td>
+<td style="text-align:right;">
+396.9994
+</td>
+<td style="text-align:right;">
+540.2935
+</td>
+<td style="text-align:right;">
+575.8019
+</td>
+<td style="text-align:right;">
+426.8241
+</td>
+<td style="text-align:right;">
+379.0296
+</td>
+<td style="text-align:right;">
+434.5659
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+경상북도
+</td>
+<td style="text-align:right;">
+656208035
+</td>
+<td style="text-align:right;">
+1610.5882
+</td>
+<td style="text-align:right;">
+1536.1716
+</td>
+<td style="text-align:right;">
+2101.9873
+</td>
+<td style="text-align:right;">
+1658.2953
+</td>
+<td style="text-align:right;">
+1155.5765
+</td>
+<td style="text-align:right;">
+817.8057
+</td>
+<td style="text-align:right;">
+1146.0674
+</td>
+<td style="text-align:right;">
+1763.8171
+</td>
+<td style="text-align:right;">
+1594.7087
+</td>
+<td style="text-align:right;">
+879.9338
+</td>
+<td style="text-align:right;">
+706.3086
+</td>
+<td style="text-align:right;">
+1151.7284
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+a
+</td>
+<td style="text-align:right;">
+539326304
+</td>
+<td style="text-align:right;">
+567.2653
+</td>
+<td style="text-align:right;">
+581.4212
+</td>
+<td style="text-align:right;">
+631.0905
+</td>
+<td style="text-align:right;">
+615.0891
+</td>
+<td style="text-align:right;">
+538.3228
+</td>
+<td style="text-align:right;">
+490.7969
+</td>
+<td style="text-align:right;">
+627.1841
+</td>
+<td style="text-align:right;">
+711.4818
+</td>
+<td style="text-align:right;">
+688.7629
+</td>
+<td style="text-align:right;">
+485.8316
+</td>
+<td style="text-align:right;">
+403.4712
+</td>
+<td style="text-align:right;">
+463.5090
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+충청남도
+</td>
+<td style="text-align:right;">
+487464263
+</td>
+<td style="text-align:right;">
+799.0260
+</td>
+<td style="text-align:right;">
+926.4656
+</td>
+<td style="text-align:right;">
+1029.1985
+</td>
+<td style="text-align:right;">
+694.3323
+</td>
+<td style="text-align:right;">
+418.1771
+</td>
+<td style="text-align:right;">
+508.1371
+</td>
+<td style="text-align:right;">
+1007.9269
+</td>
+<td style="text-align:right;">
+1030.3406
+</td>
+<td style="text-align:right;">
+1172.6824
+</td>
+<td style="text-align:right;">
+767.4349
+</td>
+<td style="text-align:right;">
+373.7625
+</td>
+<td style="text-align:right;">
+434.7491
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+경기도
+</td>
+<td style="text-align:right;">
+479381503
+</td>
+<td style="text-align:right;">
+856.0297
+</td>
+<td style="text-align:right;">
+792.3148
+</td>
+<td style="text-align:right;">
+866.6358
+</td>
+<td style="text-align:right;">
+914.3437
+</td>
+<td style="text-align:right;">
+712.2056
+</td>
+<td style="text-align:right;">
+557.4651
+</td>
+<td style="text-align:right;">
+704.9849
+</td>
+<td style="text-align:right;">
+913.9248
+</td>
+<td style="text-align:right;">
+854.8516
+</td>
+<td style="text-align:right;">
+587.2612
+</td>
+<td style="text-align:right;">
+485.4155
+</td>
+<td style="text-align:right;">
+732.7270
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+전라북도
+</td>
+<td style="text-align:right;">
+364474890
+</td>
+<td style="text-align:right;">
+489.4904
+</td>
+<td style="text-align:right;">
+527.2960
+</td>
+<td style="text-align:right;">
+577.7893
+</td>
+<td style="text-align:right;">
+626.8472
+</td>
+<td style="text-align:right;">
+447.4847
+</td>
+<td style="text-align:right;">
+350.0779
+</td>
+<td style="text-align:right;">
+542.7790
+</td>
+<td style="text-align:right;">
+655.2759
+</td>
+<td style="text-align:right;">
+736.0080
+</td>
+<td style="text-align:right;">
+591.8571
+</td>
+<td style="text-align:right;">
+359.6980
+</td>
+<td style="text-align:right;">
+363.5777
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+경상남도
+</td>
+<td style="text-align:right;">
+358406887
+</td>
+<td style="text-align:right;">
+898.4480
+</td>
+<td style="text-align:right;">
+851.5832
+</td>
+<td style="text-align:right;">
+1065.6559
+</td>
+<td style="text-align:right;">
+935.2068
+</td>
+<td style="text-align:right;">
+503.2350
+</td>
+<td style="text-align:right;">
+437.6481
+</td>
+<td style="text-align:right;">
+794.7750
+</td>
+<td style="text-align:right;">
+993.8524
+</td>
+<td style="text-align:right;">
+905.4453
+</td>
+<td style="text-align:right;">
+695.4560
+</td>
+<td style="text-align:right;">
+581.9682
+</td>
+<td style="text-align:right;">
+549.9087
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+충청북도
+</td>
+<td style="text-align:right;">
+319232606
+</td>
+<td style="text-align:right;">
+730.7723
+</td>
+<td style="text-align:right;">
+839.8546
+</td>
+<td style="text-align:right;">
+794.8072
+</td>
+<td style="text-align:right;">
+884.0315
+</td>
+<td style="text-align:right;">
+471.8538
+</td>
+<td style="text-align:right;">
+262.1766
+</td>
+<td style="text-align:right;">
+456.0416
+</td>
+<td style="text-align:right;">
+644.5895
+</td>
+<td style="text-align:right;">
+666.3577
+</td>
+<td style="text-align:right;">
+354.1769
+</td>
+<td style="text-align:right;">
+347.3728
+</td>
+<td style="text-align:right;">
+515.6262
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+대구광역시
+</td>
+<td style="text-align:right;">
+225371268
+</td>
+<td style="text-align:right;">
+1246.7488
+</td>
+<td style="text-align:right;">
+1223.1925
+</td>
+<td style="text-align:right;">
+1084.0808
+</td>
+<td style="text-align:right;">
+1034.3323
+</td>
+<td style="text-align:right;">
+889.3157
+</td>
+<td style="text-align:right;">
+812.0011
+</td>
+<td style="text-align:right;">
+958.4030
+</td>
+<td style="text-align:right;">
+1129.0690
+</td>
+<td style="text-align:right;">
+1139.6332
+</td>
+<td style="text-align:right;">
+915.1884
+</td>
+<td style="text-align:right;">
+818.5643
+</td>
+<td style="text-align:right;">
+885.1407
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+광주광역시
+</td>
+<td style="text-align:right;">
+178542513
+</td>
+<td style="text-align:right;">
+668.1498
+</td>
+<td style="text-align:right;">
+666.5134
+</td>
+<td style="text-align:right;">
+660.2633
+</td>
+<td style="text-align:right;">
+633.6729
+</td>
+<td style="text-align:right;">
+568.7155
+</td>
+<td style="text-align:right;">
+528.4329
+</td>
+<td style="text-align:right;">
+644.3117
+</td>
+<td style="text-align:right;">
+819.0714
+</td>
+<td style="text-align:right;">
+789.1883
+</td>
+<td style="text-align:right;">
+662.1907
+</td>
+<td style="text-align:right;">
+525.0272
+</td>
+<td style="text-align:right;">
+487.1415
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+인천광역시
+</td>
+<td style="text-align:right;">
+150473446
+</td>
+<td style="text-align:right;">
+624.8401
+</td>
+<td style="text-align:right;">
+613.5259
+</td>
+<td style="text-align:right;">
+714.8784
+</td>
+<td style="text-align:right;">
+707.0887
+</td>
+<td style="text-align:right;">
+512.4214
+</td>
+<td style="text-align:right;">
+424.8455
+</td>
+<td style="text-align:right;">
+523.9542
+</td>
+<td style="text-align:right;">
+624.9290
+</td>
+<td style="text-align:right;">
+724.1064
+</td>
+<td style="text-align:right;">
+568.1372
+</td>
+<td style="text-align:right;">
+467.0974
+</td>
+<td style="text-align:right;">
+564.5990
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+서울특별시
+</td>
+<td style="text-align:right;">
+140773282
+</td>
+<td style="text-align:right;">
+1565.1752
+</td>
+<td style="text-align:right;">
+1537.6285
+</td>
+<td style="text-align:right;">
+1615.3028
+</td>
+<td style="text-align:right;">
+1489.3481
+</td>
+<td style="text-align:right;">
+1336.0778
+</td>
+<td style="text-align:right;">
+1243.1983
+</td>
+<td style="text-align:right;">
+1388.7997
+</td>
+<td style="text-align:right;">
+1586.4900
+</td>
+<td style="text-align:right;">
+1491.2365
+</td>
+<td style="text-align:right;">
+1377.2692
+</td>
+<td style="text-align:right;">
+1313.1189
+</td>
+<td style="text-align:right;">
+1542.2277
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+부산광역시
+</td>
+<td style="text-align:right;">
+128824440
+</td>
+<td style="text-align:right;">
+592.8722
+</td>
+<td style="text-align:right;">
+616.2919
+</td>
+<td style="text-align:right;">
+705.7682
+</td>
+<td style="text-align:right;">
+650.3457
+</td>
+<td style="text-align:right;">
+527.4325
+</td>
+<td style="text-align:right;">
+559.4353
+</td>
+<td style="text-align:right;">
+848.5381
+</td>
+<td style="text-align:right;">
+885.9666
+</td>
+<td style="text-align:right;">
+870.2781
+</td>
+<td style="text-align:right;">
+815.7058
+</td>
+<td style="text-align:right;">
+620.0236
+</td>
+<td style="text-align:right;">
+538.8412
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+대전광역시
+</td>
+<td style="text-align:right;">
+121948508
+</td>
+<td style="text-align:right;">
+498.6381
+</td>
+<td style="text-align:right;">
+565.7297
+</td>
+<td style="text-align:right;">
+486.8405
+</td>
+<td style="text-align:right;">
+525.1424
+</td>
+<td style="text-align:right;">
+398.2732
+</td>
+<td style="text-align:right;">
+339.7330
+</td>
+<td style="text-align:right;">
+451.6808
+</td>
+<td style="text-align:right;">
+623.2514
+</td>
+<td style="text-align:right;">
+588.8135
+</td>
+<td style="text-align:right;">
+411.7080
+</td>
+<td style="text-align:right;">
+338.3979
+</td>
+<td style="text-align:right;">
+402.3027
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+울산광역시
+</td>
+<td style="text-align:right;">
+53471715
+</td>
+<td style="text-align:right;">
+730.4895
+</td>
+<td style="text-align:right;">
+742.6102
+</td>
+<td style="text-align:right;">
+731.2682
+</td>
+<td style="text-align:right;">
+706.9378
+</td>
+<td style="text-align:right;">
+531.7818
+</td>
+<td style="text-align:right;">
+503.8984
+</td>
+<td style="text-align:right;">
+672.6941
+</td>
+<td style="text-align:right;">
+829.0445
+</td>
+<td style="text-align:right;">
+942.3910
+</td>
+<td style="text-align:right;">
+706.8345
+</td>
+<td style="text-align:right;">
+685.0437
+</td>
+<td style="text-align:right;">
+672.0682
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+제주특별자치도
+</td>
+<td style="text-align:right;">
+28721413
+</td>
+<td style="text-align:right;">
+771.0359
+</td>
+<td style="text-align:right;">
+727.0538
+</td>
+<td style="text-align:right;">
+634.4635
+</td>
+<td style="text-align:right;">
+583.4830
+</td>
+<td style="text-align:right;">
+401.9199
+</td>
+<td style="text-align:right;">
+391.8233
+</td>
+<td style="text-align:right;">
+533.3575
+</td>
+<td style="text-align:right;">
+642.9027
+</td>
+<td style="text-align:right;">
+657.8257
+</td>
+<td style="text-align:right;">
+604.6050
+</td>
+<td style="text-align:right;">
+587.1549
+</td>
+<td style="text-align:right;">
+618.2933
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+중국
+</td>
+<td style="text-align:right;">
+87462
+</td>
+<td style="text-align:right;">
+1011.4196
+</td>
+<td style="text-align:right;">
+1091.6486
+</td>
+<td style="text-align:right;">
+1141.9658
+</td>
+<td style="text-align:right;">
+1023.4317
+</td>
+<td style="text-align:right;">
+1015.7073
+</td>
+<td style="text-align:right;">
+1254.9260
+</td>
+<td style="text-align:right;">
+583.9581
+</td>
+<td style="text-align:right;">
+1255.9642
+</td>
+<td style="text-align:right;">
+976.9923
+</td>
+<td style="text-align:right;">
+794.4534
+</td>
+<td style="text-align:right;">
+800.3758
+</td>
+<td style="text-align:right;">
+675.7953
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+미국
+</td>
+<td style="text-align:right;">
+10086
+</td>
+<td style="text-align:right;">
+0.0000
+</td>
+<td style="text-align:right;">
+0.0000
+</td>
+<td style="text-align:right;">
+0.0000
+</td>
+<td style="text-align:right;">
+6521.7192
+</td>
+<td style="text-align:right;">
+1956.5158
+</td>
+<td style="text-align:right;">
+6521.7192
+</td>
+<td style="text-align:right;">
+0.0000
+</td>
+<td style="text-align:right;">
+323.5892
+</td>
+<td style="text-align:right;">
+0.0000
+</td>
+<td style="text-align:right;">
+0.0000
+</td>
+<td style="text-align:right;">
+136.1761
+</td>
+<td style="text-align:right;">
+218.9149
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+러시아
+</td>
+<td style="text-align:right;">
+5000
+</td>
+<td style="text-align:right;">
+0.0000
+</td>
+<td style="text-align:right;">
+0.0000
+</td>
+<td style="text-align:right;">
+0.0000
+</td>
+<td style="text-align:right;">
+0.0000
+</td>
+<td style="text-align:right;">
+0.0000
+</td>
+<td style="text-align:right;">
+0.0000
+</td>
+<td style="text-align:right;">
+0.0000
+</td>
+<td style="text-align:right;">
+433.3777
+</td>
+<td style="text-align:right;">
+0.0000
+</td>
+<td style="text-align:right;">
+0.0000
+</td>
+<td style="text-align:right;">
+0.0000
+</td>
+<td style="text-align:right;">
+0.0000
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+기타국
+</td>
+<td style="text-align:right;">
+630
+</td>
+<td style="text-align:right;">
+0.0000
+</td>
+<td style="text-align:right;">
+0.0000
+</td>
+<td style="text-align:right;">
+0.0000
+</td>
+<td style="text-align:right;">
+0.0000
+</td>
+<td style="text-align:right;">
+0.0000
+</td>
+<td style="text-align:right;">
+0.0000
+</td>
+<td style="text-align:right;">
+1361.9304
+</td>
+<td style="text-align:right;">
+1680.7538
+</td>
+<td style="text-align:right;">
+0.0000
+</td>
+<td style="text-align:right;">
+0.0000
+</td>
+<td style="text-align:right;">
+0.0000
+</td>
+<td style="text-align:right;">
+0.0000
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+태국
+</td>
+<td style="text-align:right;">
+130
+</td>
+<td style="text-align:right;">
+0.0000
+</td>
+<td style="text-align:right;">
+0.0000
+</td>
+<td style="text-align:right;">
+0.0000
+</td>
+<td style="text-align:right;">
+0.0000
+</td>
+<td style="text-align:right;">
+0.0000
+</td>
+<td style="text-align:right;">
+0.0000
+</td>
+<td style="text-align:right;">
+0.0000
+</td>
+<td style="text-align:right;">
+0.0000
+</td>
+<td style="text-align:right;">
+0.0000
+</td>
+<td style="text-align:right;">
+5077.0331
+</td>
+<td style="text-align:right;">
+0.0000
+</td>
+<td style="text-align:right;">
+0.0000
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div id="--" class="section level5">
+<h5>산지-월 출하량+실질가격</h5>
+<p>이번에는 산지-월별 조건에서 출하량과 가격을 동시에 볼 수 있는 방법으로 histogram과 선그래프를 동시에 그려보자. <code>ggplot()</code> 함수는 데이터가 wide type이 아닌 long type이어야 group별 그래프 분리가 가능하기 때문에 <code>reshape2</code> 패키지의 ’melt()<code>함수를 이용해서 데이터를 변환여</code>dat_sanji_month_long<code>으로 저장한다. 비슷하게 가격은</code>tmp4<code>에 저장한 후</code>dat_sanji_month_long<code>에 merge 시킨다. 변환과 merge 과정에서</code>month<code>변수가 factor형으로 변경되어서 다시 numeric형으로 전환해준다. 이제</code>ggplot()`으로 출하량은 histogram으로, 가격은 y축을 상대적으로 변환하여 선그래프로 그려보자.</p>
+<p>산지별 출하기는 3D 그래프에서 보았던 것과 동일하게 나타났다. 가격의 경우 상대적 크기로 표현이 되어서 우측 Y축 범위가 지역별로 다른 것을 볼 수 있다. 2002~2018년 17년간의 평균적인 트렌드에서는 모든 지역에서 1~3월까지는 가격이 오르다 4월부터 감소세를 보이다 6월에 최하점을 찍고 다시 8~9월에 최고치를 찍은 후 11월에 최저점으로 다시 내려오는 추세를 보이는 것을 확인할 수 있다.</p>
+<pre class="r"><code>dat_sanji_month_long &lt;- melt(input_sanji_month[1:9,-14], id=c(&#39;sanji_wide2&#39;), variable.name = &#39;month&#39;,value.name = &#39;input&#39;)
+tmp4 &lt;- melt(price_sanji_month[,-2], id=c(&#39;sanji_wide2&#39;), variable.name = &#39;month&#39;, value.name = &#39;price&#39;)
+dat_sanji_month_long &lt;- merge(dat_sanji_month_long,tmp4, by=c(&#39;sanji_wide2&#39;,&#39;month&#39;),all.x=T) 
+dat_sanji_month_long$month &lt;- as.numeric(dat_sanji_month_long$month)
+ggplot(data=dat_sanji_month_long) + geom_bar(aes(x=month, y=input , fill= sanji_wide2, color=sanji_wide2),stat=&quot;identity&quot;,position=position_dodge(), colour=&quot;black&quot;) +
+  geom_line(aes(x=month, y=price*200000, group= sanji_wide2, color=sanji_wide2), color=&#39;blue&#39;, size=0.8, alpha=0.4) + scale_y_continuous(sec.axis = sec_axis(~./200000, name = &quot;price&quot;)) + 
+  facet_grid(vars(sanji_wide2), scales=&quot;free_y&quot;) </code></pre>
+<p><img src="/post/2018-05-18-wholesale_market_data2_files/figure-html/unnamed-chunk-12-1.png" width="672" /></p>
+<hr />
+</div>
+<div id="--" class="section level5">
+<h5>품종-월 반입량</h5>
+<p>이번에는 품종-월별 반입량을 살펴보자. <code>sepname</code> 변수는 결측을 포함하여 16개의 품종값을 가지고 있는데 그 중 비중이 크지 않은 생채용 배추, 절임배추, 우거지, 배추뿌리, 배추(수입), 우거지(수입), 배양채 품종은 제외하고 <code>월동배추</code>, <code>봄배추</code>, <code>여름배추</code>, <code>고랭지배추</code>, <code>가을배추</code>, <code>저장배추</code>, <code>쌈배추</code>, <code>기타</code> 8개 품종만 고려하였다. 변수명이 품종명이기는 하나 실제로는 봄배추, 여름배추 품종이 다른 것은 아니기 때문에 배추에 대해서는 품종의 의미보다는 출하시기를 의미한다고 볼 수 있다. 그래프를 보면 월동배추는 1~3월, 봄배추는 5,6월, 여름배추/고랭지배추는 7~9월, 가을배추는 10~12월이 출하량이 많다. 주요 출하기에서 제외된 4월은 저장배추가 많이 출하되어 틈새를 매우는 형태를 보인다. 쌈배추는 연중 물량이 많지 않기도 하고 쌈용이기 때문에 본격적인 분석에서는 제외하는 것이 합당해보이는데 문제는 기타로 분류된 품종이다. 물량을 보면 가을배추와 비슷한 주출하기를 보이지만 연중 고르게 분포하고 있어서 이것이 쌈배추와 같이 별도의 용도인지 아니면 특정 산지에서는 품종정보를 기입하지 않아서 기타로 처리하는 것인지는 현장 확인이 필요할 것 같다.</p>
+<pre class="r"><code>input_spec_month &lt;- dat3 %&gt;% group_by(spename,month) %&gt;% summarise(input=sum(weight,na.rm=T)) %&gt;% spread(month,input,fill=0) %&gt;% ungroup()
+input_spec_month &lt;- input_spec_month %&gt;% mutate(total=apply(input_spec_month[,-1],1,sum)) %&gt;% arrange(desc(total))
+d9 &lt;- as.matrix(input_spec_month[1:8,2:13])/1000
+hist3D(z = d9, x=1:8, y=1:12, scale = FALSE, expand = 0.00001, bty = &quot;g&quot;, phi = 50, theta = 20,  col = jet.col(100), alpha = 0.5, border = &quot;black&quot;, shade = 0.2, ltheta = 90, space = 0.4, ticktype = &quot;detailed&quot;, d = 2, xlab=&quot;기타 가을 월동 봄 고냉지 여름 저장 쌈배추&quot;, ylab=&quot;month&quot;, zlab=&#39;ton&#39;, cex.lab=0.8)</code></pre>
+<p><img src="/post/2018-05-18-wholesale_market_data2_files/figure-html/unnamed-chunk-13-1.png" width="672" /></p>
+<div style="border: 1px solid #ddd; padding: 5px; overflow-y: scroll; height:200px; overflow-x: scroll; width:100%; ">
+<table class="table table-striped table-hover table-condensed table-responsive" style="font-size: 9px; margin-left: auto; margin-right: auto;">
+<caption style="font-size: initial !important;">
+<span id="tab:unnamed-chunk-14">Table 6: </span>산지-월별 표준화 가격(원) 테이블
+</caption>
+<thead>
+<tr>
+<th style="text-align:left;">
+spename
+</th>
+<th style="text-align:right;">
+1
+</th>
+<th style="text-align:right;">
+2
+</th>
+<th style="text-align:right;">
+3
+</th>
+<th style="text-align:right;">
+4
+</th>
+<th style="text-align:right;">
+5
+</th>
+<th style="text-align:right;">
+6
+</th>
+<th style="text-align:right;">
+7
+</th>
+<th style="text-align:right;">
+8
+</th>
+<th style="text-align:right;">
+9
+</th>
+<th style="text-align:right;">
+10
+</th>
+<th style="text-align:right;">
+11
+</th>
+<th style="text-align:right;">
+12
+</th>
+<th style="text-align:right;">
+total
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+기타
+</td>
+<td style="text-align:right;">
+137369892.8
+</td>
+<td style="text-align:right;">
+136381395.6
+</td>
+<td style="text-align:right;">
+183042685.7
+</td>
+<td style="text-align:right;">
+187615635.0
+</td>
+<td style="text-align:right;">
+216352813.0
+</td>
+<td style="text-align:right;">
+255311671.6
+</td>
+<td style="text-align:right;">
+284608037.6
+</td>
+<td style="text-align:right;">
+256202763.1
+</td>
+<td style="text-align:right;">
+268793345
+</td>
+<td style="text-align:right;">
+330627238.0
+</td>
+<td style="text-align:right;">
+551947394.5
+</td>
+<td style="text-align:right;">
+316964980.2
+</td>
+<td style="text-align:right;">
+3125217851.6
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+김장(가을)배추
+</td>
+<td style="text-align:right;">
+35226113.5
+</td>
+<td style="text-align:right;">
+16929964.0
+</td>
+<td style="text-align:right;">
+17451564.5
+</td>
+<td style="text-align:right;">
+13464893.3
+</td>
+<td style="text-align:right;">
+14231126.8
+</td>
+<td style="text-align:right;">
+13372637.0
+</td>
+<td style="text-align:right;">
+42995335.0
+</td>
+<td style="text-align:right;">
+20378935.0
+</td>
+<td style="text-align:right;">
+13136193
+</td>
+<td style="text-align:right;">
+176376556.2
+</td>
+<td style="text-align:right;">
+463072594.7
+</td>
+<td style="text-align:right;">
+379855643.4
+</td>
+<td style="text-align:right;">
+1206491556.4
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+월동배추
+</td>
+<td style="text-align:right;">
+178896083.8
+</td>
+<td style="text-align:right;">
+185704942.3
+</td>
+<td style="text-align:right;">
+201705797.5
+</td>
+<td style="text-align:right;">
+87725524.6
+</td>
+<td style="text-align:right;">
+53516461.5
+</td>
+<td style="text-align:right;">
+40482397.0
+</td>
+<td style="text-align:right;">
+34857431.0
+</td>
+<td style="text-align:right;">
+41075134.5
+</td>
+<td style="text-align:right;">
+55297444
+</td>
+<td style="text-align:right;">
+76228102.0
+</td>
+<td style="text-align:right;">
+143770643.9
+</td>
+<td style="text-align:right;">
+106860370.1
+</td>
+<td style="text-align:right;">
+1206120332.5
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+봄배추
+</td>
+<td style="text-align:right;">
+15678402.0
+</td>
+<td style="text-align:right;">
+16786258.6
+</td>
+<td style="text-align:right;">
+24905337.9
+</td>
+<td style="text-align:right;">
+82999105.2
+</td>
+<td style="text-align:right;">
+310472816.4
+</td>
+<td style="text-align:right;">
+392670224.7
+</td>
+<td style="text-align:right;">
+60686848.4
+</td>
+<td style="text-align:right;">
+26199978.7
+</td>
+<td style="text-align:right;">
+31332331
+</td>
+<td style="text-align:right;">
+28633836.7
+</td>
+<td style="text-align:right;">
+41822476.8
+</td>
+<td style="text-align:right;">
+36521970.5
+</td>
+<td style="text-align:right;">
+1068709587.2
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+고냉지배추
+</td>
+<td style="text-align:right;">
+22483102.5
+</td>
+<td style="text-align:right;">
+27070403.5
+</td>
+<td style="text-align:right;">
+20782013.5
+</td>
+<td style="text-align:right;">
+907334.0
+</td>
+<td style="text-align:right;">
+1766304.0
+</td>
+<td style="text-align:right;">
+6491523.0
+</td>
+<td style="text-align:right;">
+59987881.6
+</td>
+<td style="text-align:right;">
+224377745.7
+</td>
+<td style="text-align:right;">
+330762466
+</td>
+<td style="text-align:right;">
+140989092.9
+</td>
+<td style="text-align:right;">
+25167502.3
+</td>
+<td style="text-align:right;">
+2247179.3
+</td>
+<td style="text-align:right;">
+863032548.3
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+여름배추
+</td>
+<td style="text-align:right;">
+765750.0
+</td>
+<td style="text-align:right;">
+697879.4
+</td>
+<td style="text-align:right;">
+722789.0
+</td>
+<td style="text-align:right;">
+709147.7
+</td>
+<td style="text-align:right;">
+1379912.1
+</td>
+<td style="text-align:right;">
+12442047.0
+</td>
+<td style="text-align:right;">
+145089772.1
+</td>
+<td style="text-align:right;">
+132375922.3
+</td>
+<td style="text-align:right;">
+160272117
+</td>
+<td style="text-align:right;">
+47407730.1
+</td>
+<td style="text-align:right;">
+3711642.8
+</td>
+<td style="text-align:right;">
+1242500.5
+</td>
+<td style="text-align:right;">
+506817210.2
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+저장배추
+</td>
+<td style="text-align:right;">
+9727213.5
+</td>
+<td style="text-align:right;">
+23585848.0
+</td>
+<td style="text-align:right;">
+109339828.0
+</td>
+<td style="text-align:right;">
+204322017.0
+</td>
+<td style="text-align:right;">
+68225604.0
+</td>
+<td style="text-align:right;">
+11082677.0
+</td>
+<td style="text-align:right;">
+7751160.0
+</td>
+<td style="text-align:right;">
+7803823.8
+</td>
+<td style="text-align:right;">
+10543411
+</td>
+<td style="text-align:right;">
+9148551.0
+</td>
+<td style="text-align:right;">
+15216701.0
+</td>
+<td style="text-align:right;">
+10830627.0
+</td>
+<td style="text-align:right;">
+487577461.3
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+쌈배추
+</td>
+<td style="text-align:right;">
+16374309.9
+</td>
+<td style="text-align:right;">
+15133858.6
+</td>
+<td style="text-align:right;">
+16001901.3
+</td>
+<td style="text-align:right;">
+18955136.4
+</td>
+<td style="text-align:right;">
+18492632.3
+</td>
+<td style="text-align:right;">
+16086701.9
+</td>
+<td style="text-align:right;">
+17152697.9
+</td>
+<td style="text-align:right;">
+15989739.5
+</td>
+<td style="text-align:right;">
+20009195
+</td>
+<td style="text-align:right;">
+22384805.6
+</td>
+<td style="text-align:right;">
+18933734.6
+</td>
+<td style="text-align:right;">
+15486028.8
+</td>
+<td style="text-align:right;">
+211000741.5
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+생채용 배추
+</td>
+<td style="text-align:right;">
+655069.0
+</td>
+<td style="text-align:right;">
+597843.0
+</td>
+<td style="text-align:right;">
+681966.5
+</td>
+<td style="text-align:right;">
+766186.0
+</td>
+<td style="text-align:right;">
+1230985.0
+</td>
+<td style="text-align:right;">
+1217730.0
+</td>
+<td style="text-align:right;">
+1074460.0
+</td>
+<td style="text-align:right;">
+1213320.5
+</td>
+<td style="text-align:right;">
+1314964
+</td>
+<td style="text-align:right;">
+1147821.4
+</td>
+<td style="text-align:right;">
+2687419.5
+</td>
+<td style="text-align:right;">
+4252339.5
+</td>
+<td style="text-align:right;">
+16840103.9
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+절임배추
+</td>
+<td style="text-align:right;">
+175491.0
+</td>
+<td style="text-align:right;">
+16888.0
+</td>
+<td style="text-align:right;">
+24960.0
+</td>
+<td style="text-align:right;">
+34840.0
+</td>
+<td style="text-align:right;">
+18100.0
+</td>
+<td style="text-align:right;">
+44470.0
+</td>
+<td style="text-align:right;">
+23530.0
+</td>
+<td style="text-align:right;">
+14270.0
+</td>
+<td style="text-align:right;">
+12183
+</td>
+<td style="text-align:right;">
+22710.0
+</td>
+<td style="text-align:right;">
+9151013.0
+</td>
+<td style="text-align:right;">
+6016882.0
+</td>
+<td style="text-align:right;">
+15555337.0
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+우거지
+</td>
+<td style="text-align:right;">
+1402497.7
+</td>
+<td style="text-align:right;">
+1213187.2
+</td>
+<td style="text-align:right;">
+913615.4
+</td>
+<td style="text-align:right;">
+452990.0
+</td>
+<td style="text-align:right;">
+332188.4
+</td>
+<td style="text-align:right;">
+74476.7
+</td>
+<td style="text-align:right;">
+31228.7
+</td>
+<td style="text-align:right;">
+31625.9
+</td>
+<td style="text-align:right;">
+58220
+</td>
+<td style="text-align:right;">
+138720.9
+</td>
+<td style="text-align:right;">
+176276.0
+</td>
+<td style="text-align:right;">
+483648.1
+</td>
+<td style="text-align:right;">
+5308675.0
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+배추뿌리
+</td>
+<td style="text-align:right;">
+169485.8
+</td>
+<td style="text-align:right;">
+143615.4
+</td>
+<td style="text-align:right;">
+102197.4
+</td>
+<td style="text-align:right;">
+29599.0
+</td>
+<td style="text-align:right;">
+35465.0
+</td>
+<td style="text-align:right;">
+23594.0
+</td>
+<td style="text-align:right;">
+25780.0
+</td>
+<td style="text-align:right;">
+14248.0
+</td>
+<td style="text-align:right;">
+18712
+</td>
+<td style="text-align:right;">
+33350.0
+</td>
+<td style="text-align:right;">
+58749.8
+</td>
+<td style="text-align:right;">
+147332.9
+</td>
+<td style="text-align:right;">
+802129.3
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+배추(수입)
+</td>
+<td style="text-align:right;">
+1040.0
+</td>
+<td style="text-align:right;">
+4941.0
+</td>
+<td style="text-align:right;">
+177824.0
+</td>
+<td style="text-align:right;">
+81000.0
+</td>
+<td style="text-align:right;">
+0.0
+</td>
+<td style="text-align:right;">
+0.0
+</td>
+<td style="text-align:right;">
+0.0
+</td>
+<td style="text-align:right;">
+1600.0
+</td>
+<td style="text-align:right;">
+11450
+</td>
+<td style="text-align:right;">
+107806.0
+</td>
+<td style="text-align:right;">
+11655.0
+</td>
+<td style="text-align:right;">
+60000.0
+</td>
+<td style="text-align:right;">
+457316.0
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+우거지(수입)
+</td>
+<td style="text-align:right;">
+0.0
+</td>
+<td style="text-align:right;">
+180.0
+</td>
+<td style="text-align:right;">
+68.0
+</td>
+<td style="text-align:right;">
+0.0
+</td>
+<td style="text-align:right;">
+0.0
+</td>
+<td style="text-align:right;">
+112.0
+</td>
+<td style="text-align:right;">
+0.0
+</td>
+<td style="text-align:right;">
+184.0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+444.0
+</td>
+<td style="text-align:right;">
+400.0
+</td>
+<td style="text-align:right;">
+200.0
+</td>
+<td style="text-align:right;">
+1588.0
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+a
+</td>
+<td style="text-align:right;">
+0.0
+</td>
+<td style="text-align:right;">
+0.0
+</td>
+<td style="text-align:right;">
+0.0
+</td>
+<td style="text-align:right;">
+0.0
+</td>
+<td style="text-align:right;">
+0.0
+</td>
+<td style="text-align:right;">
+0.0
+</td>
+<td style="text-align:right;">
+0.0
+</td>
+<td style="text-align:right;">
+0.0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0.0
+</td>
+<td style="text-align:right;">
+1380.0
+</td>
+<td style="text-align:right;">
+0.0
+</td>
+<td style="text-align:right;">
+1380.0
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+배양채
+</td>
+<td style="text-align:right;">
+0.0
+</td>
+<td style="text-align:right;">
+0.0
+</td>
+<td style="text-align:right;">
+164.0
+</td>
+<td style="text-align:right;">
+0.0
+</td>
+<td style="text-align:right;">
+0.0
+</td>
+<td style="text-align:right;">
+0.0
+</td>
+<td style="text-align:right;">
+0.0
+</td>
+<td style="text-align:right;">
+0.0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0.0
+</td>
+<td style="text-align:right;">
+0.0
+</td>
+<td style="text-align:right;">
+0.0
+</td>
+<td style="text-align:right;">
+164.0
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div id="--" class="section level5">
+<h5>품종-월 실질가격</h5>
+<p>다음은 품종-월별 표준화 가격 분포를 살펴보자. 기타와 쌈배추의 kg당 가격이 다른 품종 배추에 비해 지나치게 높은 것을 확인할 수 있다. 쌈배추는 별개의 용도로 보고 제외시키는 것이 문제가 안되지만 기타는 전체 물량에서 차지하는 비중이 가장 높기 때문에 제외시키는 것은 바람직하지 않다. 그렇다면 왜 기타 품종만 가격이 높은지는 추가 분석을 통해 확인을 해야 할 것이다. 문제의 두 품종을 제외하면 대체로 8,9월의 가격이 높은 편이고 여름배추의 가격이 1~4월은 높게 나타났으나 여름배추의 주 출하기가 7~9월인 점을 고려하면 의미있는 정보라고 보기는 어렵다.</p>
+<pre class="r"><code>price_spec_month &lt;- dat3 %&gt;% group_by(spename,month) %&gt;% summarise(price=mean(price_per_kg_norm,na.rm=T)) %&gt;% spread(month,price,fill=0) %&gt;% ungroup()
+price_spec_month &lt;- merge(input_spec_month[,c(1,14)],price_spec_month, by=&#39;spename&#39;,all.x=T) %&gt;% arrange(desc(total))
+d9b &lt;- as.matrix(price_spec_month[1:8,3:14])
+hist3D(z = d9b, x=1:8, y=1:12, scale = FALSE, expand = 0.003, bty = &quot;g&quot;, phi = 50, theta = 20, col = jet.col(100), alpha = 0.5, border = &quot;black&quot;, shade = 0.2, ltheta = 90, space = 0.4, ticktype = &quot;detailed&quot;, d = 2, xlab=&quot;기타 가을 월동 봄 고냉지 여름 저장 쌈배추&quot;, ylab=&quot;month&quot;, zlab=&#39;ton&#39;, cex.lab=0.8)</code></pre>
+<p><img src="/post/2018-05-18-wholesale_market_data2_files/figure-html/unnamed-chunk-15-1.png" width="672" /></p>
+</div>
+<div id="--" class="section level5">
+<h5>품종-월 출하량+실질가격</h5>
+<p>품종-월별 조건에서 출하량과 가격을 histogram과 선그래프로 확인해보자. 산지별로 주 출하기가 달랐던 것과 유사하게 품종별로 주출하기가 다른 것을 볼 수 있다. 각 품종별로 해당 계절이 아닌 시기에도 출하량이 어느정도 잡히고 있는 것도 보이는데 품종을 기록하는 것이 산지의 출하조직에서 이루어지는 사람이 하는 일이라고 생각하면 오류의 존재를 인정할 수 있을 것이다. 따라서 기존의 품종 정보는 무시하고 월을 기준으로 새로운 품종 변수를 만드는 것이 더 적절할 수도 있을 것이다. 이는 이후 분석을 하는 과정에서의 결과를 통해서 어떤 방향이 나은지 생각해보자. 가격의 패턴은 산지에서와 유사하게 3, 8, 9월 고점, 6, 11월 저점을 보여주고 있다.</p>
+<pre class="r"><code>dat_spec_month_long &lt;- melt(input_spec_month[1:8,-14], id=c(&#39;spename&#39;), variable.name = &#39;month&#39;,value.name = &#39;input&#39;)
+tmp5 &lt;- melt(price_spec_month[,-2], id=c(&#39;spename&#39;), variable.name = &#39;month&#39;, value.name = &#39;price&#39;)
+dat_spec_month_long &lt;- merge(dat_spec_month_long,tmp5, by=c(&#39;spename&#39;,&#39;month&#39;),all.x=T) 
+dat_spec_month_long$month &lt;- as.numeric(dat_spec_month_long$month)
+ggplot(data=dat_spec_month_long) + geom_bar(aes(x=month, y=input , fill= spename, color=spename),stat=&quot;identity&quot;,position=position_dodge(), colour=&quot;black&quot;) +
+  geom_line(aes(x=month, y=price*200000, group= spename, color=spename), color=&#39;blue&#39;, size=0.8, alpha=0.4) + scale_y_continuous(sec.axis = sec_axis(~./200000, name = &quot;price&quot;)) + 
+  facet_grid(vars(spename), scales=&quot;free_y&quot;) </code></pre>
+<p><img src="/post/2018-05-18-wholesale_market_data2_files/figure-html/unnamed-chunk-16-1.png" width="672" /></p>
+<hr />
+</div>
+<div id="--" class="section level5">
+<h5>품종-산지 출하량</h5>
+<p>마지막으로 품종과 산지의 출하량 관계를 3D 그래프로 확인해보자. 출력용 가공 데이터는 <code>spename</code>과 <code>sanji_wide2</code> 변수로 피벗 테이블을 만들고 합계의 내림차순으로 정렬된 표이다. 두 변수 기준으로 해당 데이터를 만드는 함수는 <a href="">두 변수 정렬 피벗 테이블 함수</a> Post를 참고하자.</p>
+<p>생성된 가공 데이터에서 산지는 상위 9개, 품종은 상위 8개를 이용해서 3D 막대그래프를 그려보면 최대 주산지 전남에서는 <code>가을</code>, <code>월동</code>, <code>여름</code>, <code>배추</code>, <code>기타</code> 품종의 주 출하지이다. 두번째 주산지인 강원은 <code>고랭지</code>, <code>여름</code> 품종의 주 출하지이다. 가을 배추도 강원도가 2위 출하지이긴 하다. 경북은 봄, 가을 배추 출하량이 많은 편, 충남은 봄배추의 출하량이 많은 편이다. 경기 지역에서 기타 품종이 많은 것은 특이하다. 경기도에서 생산하는 특수 목적의 배추가 기타일 수도 있지 않을까? 하지만 문제의 기타 품종은 주 출하지인 전남, 강원의 출하량이 절대다수인 것을 보았을 때 품종정보가 기록 되지 않은 일반 배추일 가능성이 높아보인다.</p>
+<pre class="r"><code>input_spec_sanji_wide2 &lt;- total_sort_2d(dat3,spename,sanji_wide2,weight)
+d10 &lt;- as.matrix(input_spec_sanji_wide2[1:9,2:9])/1000
+hist3D(z = d10, x=1:9, y=1:8, scale = FALSE, expand = 0.00001, bty = &quot;g&quot;, phi = 50, theta = 120, col = jet.col(100), alpha = 0.5, border = &quot;black&quot;, shade = 0.2, ltheta = 90, space = 0.4, ticktype = &quot;detailed&quot;, d = 2, xlab=&quot;충북 경남 전북 경기 충남 결측 경북 강원 전남&quot;, cex.lab=0.8, ylab=&quot;기타  가을  월동  봄  고냉지  여름  저장  쌈배추&quot;, zlab=&#39;ton&#39;)</code></pre>
+<p><img src="/post/2018-05-18-wholesale_market_data2_files/figure-html/unnamed-chunk-18-1.png" width="672" /></p>
+<div style="border: 1px solid #ddd; padding: 5px; overflow-y: scroll; height:200px; overflow-x: scroll; width:100%; ">
+<table class="table table-striped table-hover table-condensed table-responsive" style="font-size: 9px; margin-left: auto; margin-right: auto;">
+<caption style="font-size: initial !important;">
+<span id="tab:unnamed-chunk-19">Table 7: </span>품종-산지별 출하량(kg) 테이블
+</caption>
+<thead>
+<tr>
+<th style="text-align:left;">
+spename
+</th>
+<th style="text-align:right;">
+1
+</th>
+<th style="text-align:right;">
+2
+</th>
+<th style="text-align:right;">
+3
+</th>
+<th style="text-align:right;">
+4
+</th>
+<th style="text-align:right;">
+5
+</th>
+<th style="text-align:right;">
+6
+</th>
+<th style="text-align:right;">
+7
+</th>
+<th style="text-align:right;">
+8
+</th>
+<th style="text-align:right;">
+9
+</th>
+<th style="text-align:right;">
+10
+</th>
+<th style="text-align:right;">
+11
+</th>
+<th style="text-align:right;">
+12
+</th>
+<th style="text-align:right;">
+total
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+기타
+</td>
+<td style="text-align:right;">
+137369892.8
+</td>
+<td style="text-align:right;">
+136381395.6
+</td>
+<td style="text-align:right;">
+183042685.7
+</td>
+<td style="text-align:right;">
+187615635.0
+</td>
+<td style="text-align:right;">
+216352813.0
+</td>
+<td style="text-align:right;">
+255311671.6
+</td>
+<td style="text-align:right;">
+284608037.6
+</td>
+<td style="text-align:right;">
+256202763.1
+</td>
+<td style="text-align:right;">
+268793345
+</td>
+<td style="text-align:right;">
+330627238.0
+</td>
+<td style="text-align:right;">
+551947394.5
+</td>
+<td style="text-align:right;">
+316964980.2
+</td>
+<td style="text-align:right;">
+3125217851.6
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+김장(가을)배추
+</td>
+<td style="text-align:right;">
+35226113.5
+</td>
+<td style="text-align:right;">
+16929964.0
+</td>
+<td style="text-align:right;">
+17451564.5
+</td>
+<td style="text-align:right;">
+13464893.3
+</td>
+<td style="text-align:right;">
+14231126.8
+</td>
+<td style="text-align:right;">
+13372637.0
+</td>
+<td style="text-align:right;">
+42995335.0
+</td>
+<td style="text-align:right;">
+20378935.0
+</td>
+<td style="text-align:right;">
+13136193
+</td>
+<td style="text-align:right;">
+176376556.2
+</td>
+<td style="text-align:right;">
+463072594.7
+</td>
+<td style="text-align:right;">
+379855643.4
+</td>
+<td style="text-align:right;">
+1206491556.4
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+월동배추
+</td>
+<td style="text-align:right;">
+178896083.8
+</td>
+<td style="text-align:right;">
+185704942.3
+</td>
+<td style="text-align:right;">
+201705797.5
+</td>
+<td style="text-align:right;">
+87725524.6
+</td>
+<td style="text-align:right;">
+53516461.5
+</td>
+<td style="text-align:right;">
+40482397.0
+</td>
+<td style="text-align:right;">
+34857431.0
+</td>
+<td style="text-align:right;">
+41075134.5
+</td>
+<td style="text-align:right;">
+55297444
+</td>
+<td style="text-align:right;">
+76228102.0
+</td>
+<td style="text-align:right;">
+143770643.9
+</td>
+<td style="text-align:right;">
+106860370.1
+</td>
+<td style="text-align:right;">
+1206120332.5
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+봄배추
+</td>
+<td style="text-align:right;">
+15678402.0
+</td>
+<td style="text-align:right;">
+16786258.6
+</td>
+<td style="text-align:right;">
+24905337.9
+</td>
+<td style="text-align:right;">
+82999105.2
+</td>
+<td style="text-align:right;">
+310472816.4
+</td>
+<td style="text-align:right;">
+392670224.7
+</td>
+<td style="text-align:right;">
+60686848.4
+</td>
+<td style="text-align:right;">
+26199978.7
+</td>
+<td style="text-align:right;">
+31332331
+</td>
+<td style="text-align:right;">
+28633836.7
+</td>
+<td style="text-align:right;">
+41822476.8
+</td>
+<td style="text-align:right;">
+36521970.5
+</td>
+<td style="text-align:right;">
+1068709587.2
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+고냉지배추
+</td>
+<td style="text-align:right;">
+22483102.5
+</td>
+<td style="text-align:right;">
+27070403.5
+</td>
+<td style="text-align:right;">
+20782013.5
+</td>
+<td style="text-align:right;">
+907334.0
+</td>
+<td style="text-align:right;">
+1766304.0
+</td>
+<td style="text-align:right;">
+6491523.0
+</td>
+<td style="text-align:right;">
+59987881.6
+</td>
+<td style="text-align:right;">
+224377745.7
+</td>
+<td style="text-align:right;">
+330762466
+</td>
+<td style="text-align:right;">
+140989092.9
+</td>
+<td style="text-align:right;">
+25167502.3
+</td>
+<td style="text-align:right;">
+2247179.3
+</td>
+<td style="text-align:right;">
+863032548.3
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+여름배추
+</td>
+<td style="text-align:right;">
+765750.0
+</td>
+<td style="text-align:right;">
+697879.4
+</td>
+<td style="text-align:right;">
+722789.0
+</td>
+<td style="text-align:right;">
+709147.7
+</td>
+<td style="text-align:right;">
+1379912.1
+</td>
+<td style="text-align:right;">
+12442047.0
+</td>
+<td style="text-align:right;">
+145089772.1
+</td>
+<td style="text-align:right;">
+132375922.3
+</td>
+<td style="text-align:right;">
+160272117
+</td>
+<td style="text-align:right;">
+47407730.1
+</td>
+<td style="text-align:right;">
+3711642.8
+</td>
+<td style="text-align:right;">
+1242500.5
+</td>
+<td style="text-align:right;">
+506817210.2
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+저장배추
+</td>
+<td style="text-align:right;">
+9727213.5
+</td>
+<td style="text-align:right;">
+23585848.0
+</td>
+<td style="text-align:right;">
+109339828.0
+</td>
+<td style="text-align:right;">
+204322017.0
+</td>
+<td style="text-align:right;">
+68225604.0
+</td>
+<td style="text-align:right;">
+11082677.0
+</td>
+<td style="text-align:right;">
+7751160.0
+</td>
+<td style="text-align:right;">
+7803823.8
+</td>
+<td style="text-align:right;">
+10543411
+</td>
+<td style="text-align:right;">
+9148551.0
+</td>
+<td style="text-align:right;">
+15216701.0
+</td>
+<td style="text-align:right;">
+10830627.0
+</td>
+<td style="text-align:right;">
+487577461.3
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+쌈배추
+</td>
+<td style="text-align:right;">
+16374309.9
+</td>
+<td style="text-align:right;">
+15133858.6
+</td>
+<td style="text-align:right;">
+16001901.3
+</td>
+<td style="text-align:right;">
+18955136.4
+</td>
+<td style="text-align:right;">
+18492632.3
+</td>
+<td style="text-align:right;">
+16086701.9
+</td>
+<td style="text-align:right;">
+17152697.9
+</td>
+<td style="text-align:right;">
+15989739.5
+</td>
+<td style="text-align:right;">
+20009195
+</td>
+<td style="text-align:right;">
+22384805.6
+</td>
+<td style="text-align:right;">
+18933734.6
+</td>
+<td style="text-align:right;">
+15486028.8
+</td>
+<td style="text-align:right;">
+211000741.5
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+생채용 배추
+</td>
+<td style="text-align:right;">
+655069.0
+</td>
+<td style="text-align:right;">
+597843.0
+</td>
+<td style="text-align:right;">
+681966.5
+</td>
+<td style="text-align:right;">
+766186.0
+</td>
+<td style="text-align:right;">
+1230985.0
+</td>
+<td style="text-align:right;">
+1217730.0
+</td>
+<td style="text-align:right;">
+1074460.0
+</td>
+<td style="text-align:right;">
+1213320.5
+</td>
+<td style="text-align:right;">
+1314964
+</td>
+<td style="text-align:right;">
+1147821.4
+</td>
+<td style="text-align:right;">
+2687419.5
+</td>
+<td style="text-align:right;">
+4252339.5
+</td>
+<td style="text-align:right;">
+16840103.9
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+절임배추
+</td>
+<td style="text-align:right;">
+175491.0
+</td>
+<td style="text-align:right;">
+16888.0
+</td>
+<td style="text-align:right;">
+24960.0
+</td>
+<td style="text-align:right;">
+34840.0
+</td>
+<td style="text-align:right;">
+18100.0
+</td>
+<td style="text-align:right;">
+44470.0
+</td>
+<td style="text-align:right;">
+23530.0
+</td>
+<td style="text-align:right;">
+14270.0
+</td>
+<td style="text-align:right;">
+12183
+</td>
+<td style="text-align:right;">
+22710.0
+</td>
+<td style="text-align:right;">
+9151013.0
+</td>
+<td style="text-align:right;">
+6016882.0
+</td>
+<td style="text-align:right;">
+15555337.0
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+우거지
+</td>
+<td style="text-align:right;">
+1402497.7
+</td>
+<td style="text-align:right;">
+1213187.2
+</td>
+<td style="text-align:right;">
+913615.4
+</td>
+<td style="text-align:right;">
+452990.0
+</td>
+<td style="text-align:right;">
+332188.4
+</td>
+<td style="text-align:right;">
+74476.7
+</td>
+<td style="text-align:right;">
+31228.7
+</td>
+<td style="text-align:right;">
+31625.9
+</td>
+<td style="text-align:right;">
+58220
+</td>
+<td style="text-align:right;">
+138720.9
+</td>
+<td style="text-align:right;">
+176276.0
+</td>
+<td style="text-align:right;">
+483648.1
+</td>
+<td style="text-align:right;">
+5308675.0
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+배추뿌리
+</td>
+<td style="text-align:right;">
+169485.8
+</td>
+<td style="text-align:right;">
+143615.4
+</td>
+<td style="text-align:right;">
+102197.4
+</td>
+<td style="text-align:right;">
+29599.0
+</td>
+<td style="text-align:right;">
+35465.0
+</td>
+<td style="text-align:right;">
+23594.0
+</td>
+<td style="text-align:right;">
+25780.0
+</td>
+<td style="text-align:right;">
+14248.0
+</td>
+<td style="text-align:right;">
+18712
+</td>
+<td style="text-align:right;">
+33350.0
+</td>
+<td style="text-align:right;">
+58749.8
+</td>
+<td style="text-align:right;">
+147332.9
+</td>
+<td style="text-align:right;">
+802129.3
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+배추(수입)
+</td>
+<td style="text-align:right;">
+1040.0
+</td>
+<td style="text-align:right;">
+4941.0
+</td>
+<td style="text-align:right;">
+177824.0
+</td>
+<td style="text-align:right;">
+81000.0
+</td>
+<td style="text-align:right;">
+0.0
+</td>
+<td style="text-align:right;">
+0.0
+</td>
+<td style="text-align:right;">
+0.0
+</td>
+<td style="text-align:right;">
+1600.0
+</td>
+<td style="text-align:right;">
+11450
+</td>
+<td style="text-align:right;">
+107806.0
+</td>
+<td style="text-align:right;">
+11655.0
+</td>
+<td style="text-align:right;">
+60000.0
+</td>
+<td style="text-align:right;">
+457316.0
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+우거지(수입)
+</td>
+<td style="text-align:right;">
+0.0
+</td>
+<td style="text-align:right;">
+180.0
+</td>
+<td style="text-align:right;">
+68.0
+</td>
+<td style="text-align:right;">
+0.0
+</td>
+<td style="text-align:right;">
+0.0
+</td>
+<td style="text-align:right;">
+112.0
+</td>
+<td style="text-align:right;">
+0.0
+</td>
+<td style="text-align:right;">
+184.0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+444.0
+</td>
+<td style="text-align:right;">
+400.0
+</td>
+<td style="text-align:right;">
+200.0
+</td>
+<td style="text-align:right;">
+1588.0
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+a
+</td>
+<td style="text-align:right;">
+0.0
+</td>
+<td style="text-align:right;">
+0.0
+</td>
+<td style="text-align:right;">
+0.0
+</td>
+<td style="text-align:right;">
+0.0
+</td>
+<td style="text-align:right;">
+0.0
+</td>
+<td style="text-align:right;">
+0.0
+</td>
+<td style="text-align:right;">
+0.0
+</td>
+<td style="text-align:right;">
+0.0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0.0
+</td>
+<td style="text-align:right;">
+1380.0
+</td>
+<td style="text-align:right;">
+0.0
+</td>
+<td style="text-align:right;">
+1380.0
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+배양채
+</td>
+<td style="text-align:right;">
+0.0
+</td>
+<td style="text-align:right;">
+0.0
+</td>
+<td style="text-align:right;">
+164.0
+</td>
+<td style="text-align:right;">
+0.0
+</td>
+<td style="text-align:right;">
+0.0
+</td>
+<td style="text-align:right;">
+0.0
+</td>
+<td style="text-align:right;">
+0.0
+</td>
+<td style="text-align:right;">
+0.0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0.0
+</td>
+<td style="text-align:right;">
+0.0
+</td>
+<td style="text-align:right;">
+0.0
+</td>
+<td style="text-align:right;">
+164.0
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<hr />
+<center>
+<a href="/post/wholesale_market_data1">NEXT : 도매시장 경락 데이터의 이해: 배추(3/3)</a>
+</center>
+<hr />
+</div>
+
+		</div>
+		
+<div class="post__tags tags clearfix">
+	<svg class="icon icon-tag" width="16" height="16" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg"><path d="m4.73135 3.3795002q0-.5597-.39604-.9557-.39604-.3961-.95577-.3961-.55974 0-.95578.3961-.39604.396-.39604.9557 0 .5598.39604.9558.39604.3961.95578.3961.55973 0 .95577-.3961.39604-.396.39604-.9558zm11.26865 6.0832q0 .5596998-.39076.9504998l-5.18548 5.196q-.41188.3908-.9610504.3908-.55974 0-.9505-.3908l-7.5511496-7.5616998q-.40132-.3907-.68119-1.0666-.27987-.6759-.27987-1.2357v-4.3934q0-.54920004.40132-.95050004.40132-.4013.9505-.4013h4.39339q.55974 0 1.23565.2799.67591.2798 1.07723.6812l7.55115 7.54060004q.39076.4118.39076.961z"/></svg>
+	<ul class="tags__list">
+		<li class="tags__item"><a class="tags__link" href="/tags/%EB%8F%84%EB%A7%A4%EC%8B%9C%EC%9E%A5/" rel="tag">도매시장</a></li>
+		<li class="tags__item"><a class="tags__link" href="/tags/%EA%B2%BD%EB%A7%A4/" rel="tag">경매</a></li>
+	</ul>
+</div>
+
+	</article>
+	
+
+<div class="authorbox clearfix">
+
+  
+
+    
+
+	
+
+		<figure class="authorbox__avatar">
+
+			<img alt="장박 avatar" src="/img/jangbak.jpg" class="avatar" height="90" width="90">
+
+		</figure>
+
+		<div class="authorbox__header">
+
+			<span class="authorbox__name">About 장박</span>
+
+		</div>
+
+		<div class="authorbox__description">
+
+			장박은 농업정보시스템 연구실에서 오랜시간 숙성되고 있는 농업데이터사이언티스트이다.
+
+		</div>
+
+	
+
+  
+
+</div>
+
+
+	
+<nav class="post-nav row clearfix" itemscope="itemscope" itemtype="http://schema.org/SiteNavigationElement">
+	<div class="post-nav__item post-nav__item--prev col-1-2">
+		<a class="post-nav__link" href="/post/wholesale_market_data1/" rel="prev"><span class="post-nav__caption">«Previous</span><p class="post-nav__post-title">도매시장 경락 데이터의 이해-배추(1/3)</p></a>
+	</div>
+</nav>
+
+	
+</main>
+
+<aside class="sidebar" itemscope="itemscope" itemtype="http://schema.org/WPSideBar">
+	
+<div class="widget-search widget">
+	<form class="widget-search__form" role="search" method="get" action="//google.com/search">
+		<label>
+			<span class="screen-reader-text">Search for:</span>
+			<input class="widget-search__field" type="search" placeholder="SEARCH..." value="" name="q">
+		</label>
+		<input class="widget-search__submit" type="submit" value="Search">
+		<input type="hidden" name="sitesearch" value="/" />
+	</form>
+</div>
+	
+<div class="widget-recent widget">
+	<h4 class="widget__title">Recent Posts</h4>
+	<div class="widget__content">
+		<ul class="widget__list">
+			<li class="widget__item"><a class="widget__link" href="/post/wholesale_market_data2/">도매시장 경락 데이터의 이해 - 배추(2/3)</a></li>
+			<li class="widget__item"><a class="widget__link" href="/post/wholesale_market_data1/">도매시장 경락 데이터의 이해-배추(1/3)</a></li>
+			<li class="widget__item"><a class="widget__link" href="/post/fourth_ind_revol_choe/">4차산업혁명 기술의 농업 접목은 차근히 진행돼야 (스크랩)</a></li>
+			<li class="widget__item"><a class="widget__link" href="/post/wholesale_market_prototype_shiny_app/">도매시장 가격분석 프로토타입 Shiny App</a></li>
+			<li class="widget__item"><a class="widget__link" href="/post/orgin_intnl_ad/">원산지정보와 국제광고(랩스터디)</a></li>
+			<li class="widget__item"><a class="widget__link" href="/post/ict_convergence_tech_ppt/">농식품 분야 ICT 융합 해외 최신 기술 동향 (2014.5.19)</a></li>
+			<li class="widget__item"><a class="widget__link" href="/post/glm_ach/">GLM을 이용한 대학학업 성취도 분석 (랩스터디)</a></li>
+			<li class="widget__item"><a class="widget__link" href="/post/env_cont_energy_reduce/">온실환경 관리대상과 에너지 절감 요소</a></li>
+			<li class="widget__item"><a class="widget__link" href="/post/dl_cnn/">Deep Learning &amp; Convolutional Neural Network</a></li>
+			<li class="widget__item"><a class="widget__link" href="/post/smartfarm_data3/">스마트팜 데이터의 이해 (3/3)</a></li>
+		</ul>
+	</div>
+</div>
+
+	
+<div class="widget-categories widget">
+	<h4 class="widget__title">Categories</h4>
+	<div class="widget__content">
+		<ul class="widget__list">
+			<li class="widget__item"><a class="widget__link" href="/categories/%ea%b3%bc%ed%95%99%ea%b3%bc-%ea%b8%b0%ec%88%a0">과학과-기술</a></li>
+			<li class="widget__item"><a class="widget__link" href="/categories/%ea%b8%b0%ed%83%80%eb%b0%9c%ed%91%9c%ec%9e%90%eb%a3%8c">기타발표자료</a></li>
+			<li class="widget__item"><a class="widget__link" href="/categories/%eb%85%bc%eb%ac%b8%eb%a6%ac%eb%b7%b0">논문리뷰</a></li>
+			<li class="widget__item"><a class="widget__link" href="/categories/%eb%89%b4%ec%8a%a4-%ec%8a%a4%ed%81%ac%eb%9e%a9">뉴스-스크랩</a></li>
+			<li class="widget__item"><a class="widget__link" href="/categories/%eb%9e%a9%ec%84%b8%eb%af%b8%eb%82%98">랩세미나</a></li>
+			<li class="widget__item"><a class="widget__link" href="/categories/%eb%9e%a9%ec%8a%a4%ed%84%b0%eb%94%94">랩스터디</a></li>
+			<li class="widget__item"><a class="widget__link" href="/categories/%ec%83%9d%ec%82%b0%ea%b3%bc-%ec%9c%a0%ed%86%b5">생산과-유통</a></li>
+			<li class="widget__item"><a class="widget__link" href="/categories/%ed%99%98%ea%b2%bd%eb%aa%a8%eb%8b%88%ed%84%b0%eb%a7%81%ea%b3%bc-%ec%a0%9c%ec%96%b4">환경모니터링과-제어</a></li>
+		</ul>
+	</div>
+</div>
+	
+
+	
+<div class="widget-taglist widget">
+	<h4 class="widget__title">Tags</h4>
+	<div class="widget__content">
+		<a class="widget__link widget__link--taglist" href="/tags/4%ec%b0%a8%ec%82%b0%ec%97%85%ed%98%81%eb%aa%85" title="4차산업혁명">4차산업혁명</a>
+		<a class="widget__link widget__link--taglist" href="/tags/ai" title="ai">ai</a>
+		<a class="widget__link widget__link--taglist" href="/tags/convolutional-neural-network" title="convolutional-neural-network">convolutional-neural-network</a>
+		<a class="widget__link widget__link--taglist" href="/tags/deep-learning" title="deep-learning">deep-learning</a>
+		<a class="widget__link widget__link--taglist" href="/tags/glm" title="glm">glm</a>
+		<a class="widget__link widget__link--taglist" href="/tags/manova" title="manova">manova</a>
+		<a class="widget__link widget__link--taglist" href="/tags/plot" title="plot">plot</a>
+		<a class="widget__link widget__link--taglist" href="/tags/r-markdown" title="r-markdown">r-markdown</a>
+		<a class="widget__link widget__link--taglist" href="/tags/r-shiny" title="r-shiny">r-shiny</a>
+		<a class="widget__link widget__link--taglist" href="/tags/regression" title="regression">regression</a>
+		<a class="widget__link widget__link--taglist" href="/tags/%ea%b2%bd%eb%a7%a4" title="경매">경매</a>
+		<a class="widget__link widget__link--taglist" href="/tags/%eb%8f%84%eb%a7%a4%ec%8b%9c%ec%9e%a5" title="도매시장">도매시장</a>
+		<a class="widget__link widget__link--taglist" href="/tags/%eb%b9%85%eb%8d%b0%ec%9d%b4%ed%84%b0" title="빅데이터">빅데이터</a>
+		<a class="widget__link widget__link--taglist" href="/tags/%ec%83%9d%ec%9c%a1%eb%aa%a8%eb%8d%b8" title="생육모델">생육모델</a>
+		<a class="widget__link widget__link--taglist" href="/tags/%ec%8a%a4%eb%a7%88%ed%8a%b8%ed%8c%9c" title="스마트팜">스마트팜</a>
+		<a class="widget__link widget__link--taglist" href="/tags/%ed%99%98%ea%b2%bd-%eb%aa%a8%eb%8b%88%ed%84%b0%eb%a7%81" title="환경-모니터링">환경-모니터링</a>
+	</div>
+</div>
+</aside>
+
+	</div>
+		<footer class="footer" itemscope="itemscope" itemtype="http://schema.org/WPFooter">
+			<div class="container container-inner">
+				<p class="footer__copyright">&copy; 2018 AgData Lab. <span class="footer__copyright-credits">Generated with <a href="https://gohugo.io/" rel="nofollow noopener" target="_blank">Hugo</a> and <a href="https://github.com/Vimux/Mainroad/" rel="nofollow noopener" target="_blank">Mainroad theme</a>.</span></p>
+			</div>
+		</footer>
+	</div>
+
+<script>
+	var navigation = responsiveNav(".menu", {
+		navClass: "menu--collapse",
+	});
+</script>
+</body>
+</html>

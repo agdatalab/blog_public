@@ -1,0 +1,246 @@
+---
+title: 도매시장 경락 데이터의 이해 - 배추(2/3)
+author: jangbak
+date: '2018-05-18'
+slug: wholesale_market_data2
+categories:
+  - 생산과 유통
+tags:
+  - 도매시장
+  - 경매
+description: ''
+thumbnail: ''
+---
+
+<center> [PREV : 도매시장 경락 데이터의 이해: 배추(1/3)](/post/wholesale_market_data1) </center>
+
+---
+
+지난 Post에 이어서 이상치로 판단되는 10,000원 이상의 kg당 가격 케이스를 삭제한 `dat3` 데이터를 이용하여 도매시장 경매와 관련한 각 변수들 간의 관계를 눈으로 확인해보자. 이번 Post에서는 Cross tabulation라고도 불리는 교차분석 방법으로 명목형(categorical) 변수들 간의 관계를 보려고 한다. 교차분석은 두 변수 간의 관계를 한 변수는 X축, 다른 한 변수는 Y축 방향으로 각 변수의 요소들을 나열하고 각각의 경우에 대한 연속형 변수의 값을 보여주는 것이다. 예를들어 성별, 결혼유무 두 명목형 변수와 행복지수라는 하나의 연속형 변수가 있을 때 이를 `남-기혼`, `남-미혼`, `여-기혼`, `여-미혼`으로 표현되는 `2x2` 표를 만들고 각 케이스에 속하는 사람들의 행복지수 평균을 구해서 비교하는 것이 교차분석의 예이다.  
+
+##### 연도-월 반입량 
+
+먼저 연도와 월 변수간의 관계를 도매시장 반입량(kg) `weight` 변수로 비교해보자. `input_year_month`는 `dat3`으로부터 `group_by()` 함수로 `year`, `month` 변수의 각각의 케이스별로 그룹화한 후 각 그룹 내에서 `mutate()` 함수로 `weight` 변수의 합을 구해서 새로운 `input` 변수를 만든다. 여기까지는 `dplyr` 패키지가 신속하게 처리해준다. 다음은 `tidyr` 패키지의 `spread()` 함수를 이용해서 2개 변수로 그룹핑된 데이터를 그중 1개의 변수를 x축 방향으로 늘어뜨린 형태로 펼쳐준다. MS엑셀의 피벗 테이블  기능과 유사한 결과를 만들어준다. 마지막으로 우리가 원하는 형태로 만들어진 데이터프레임은 `ungroup()` 함수를 이용해서 그룹을 풀어준다.(group화된 데이터프레임을 입력 데이터로 쓸 경우 오류가 발생하는 경우가 있다.) 문자값을 가진 첫번째 열을 제거한 숫자로만 구성된 데이터를 matrix형으로 형변환을 해서 1000을 나누어 단위를 ton으로 변환하여 `d5`에 저장한 후, `hist3D()` 함수를 이용해서 3D bar chart를 그린다. `hist3D()'에 대한 구체적인 설명은 [R study]() Post를 참고하자. 
+
+<style>
+pre code, pre, code {
+  white-space: pre !important;
+  overflow-x: auto !important;
+  word-break: keep-all !important;
+  word-wrap: initial !important;
+}
+</style>
+
+```{r load pkg, include=F, echo=FALSE, warning=FALSE}
+library(plotly); library(plot3D); library(dplyr); library(tidyr) ;library(ggplot2); library(dbConnect); library(gridExtra); library(knitr); library(kableExtra); library(reshape2)
+```
+
+      library(plotly); library(plot3D); library(dplyr); library(tidyr); library(ggplot2); library(gridExtra); library(knitr); library(kableExtra); library(reshape2)
+
+
+```{r read.csv prepro, include=F, warning=FALSE}
+dat <- read.csv('cabbage_2002-2018.csv')
+dat <- dat %>% mutate(year = as.numeric(substr(date,1,4)),
+                      month = as.numeric(substr(date,5,6)),
+                      day = as.numeric(substr(date,7,8)),
+                      week = as.numeric(format(as.Date(as.character(date),format= "%Y%m%d"),"%W"))+1,
+                      wday=weekdays(as.Date(as.character(date),format="%Y%m%d")))
+dat <- dat %>% mutate(weight = ifelse(unit=='ton',prut*qty*1000,ifelse(unit=='g',prut*qty*0.001,prut*qty)),
+                      sales_amt = price*qty,
+                      price_per_kg = round(sales_amt/weight,2))
+dat <- dat %>% separate(sanji,into=c('sanji_wide','sanji_city'),sep=" ",remove=F)
+dat <- dat %>% mutate(sanji_wide2 = ifelse(sanji_wide=='세종특별자치시','충청남도',sanji_wide))
+dat3 <- dat %>% filter(!((unit=='g' & prut<100) | (unit=='kg' & prut<0.1)) & price_per_kg <= 10000)
+```
+
+```{r include=T, echo=T, warning=FALSE}
+input_year_month <- dat3 %>% group_by(year,month) %>% summarise(input=sum(weight,na.rm=T)) %>% spread(month,input,fill=0) %>% ungroup()
+d5 <- as.matrix(input_year_month[,-1])/1000
+hist3D(z = d5, x = as.numeric(t(input_year_month[,1])), y = 1:12, scale = F, expand = 0.00005, bty = "g", phi = 30, theta = 20, col = jet.col(100), alpha = 0.5, border = "black", shade = 0.2, ltheta = 90, space = 0.4, ticktype = "detailed", d = 2, xlab='year',ylab='month',zlab='ton')
+```
+
+위에서 3D 그래프로 표현된 연도-월별 반입량 정보와 아래에 테이블로 표현된 동일한 정보 중 어떤 것이 더 해석하기가 쉬운가? 대부분의 사람들의 뇌는 숫자가 가지는 상징성보다는 서로 다른 길이와 색깔을 가진 이미지를 인지하고 판별하는 것이 더 편할 것이다.(숫자가 훨씬 더 편한 천재과의 사람도 있겠지만..) 그런 의미에서 Agdatalab blog에서는 분석결과들을 되도록 그래프와 같은 시각적인 결과물로 설명하는 방향으로 하겠다. 
+
+그래프를 보는 방법은 x축은 `year`, y축은 `month`를 표현한다. z축은 `weight` 변수로 단위는 `ton`이다. 색깔은 `ton`의 수치를 설명하는 것으로 파란색의 2만톤 이하 수준에서 하늘색을 거처 노란색의 8만톤 수준을 지나 주황색을 넘어 빨간색의 12만톤 수준까지를 표현한다. 월별로 보면 대체로 겨울철, 봄철의 반입량은 낮은 수준이고 여름이 지나고 가을철이 되면 급증하는 패턴을 보인다. 연도별로는 대체로 비슷한 수준에서 조금씩 변화하는 패턴을 보이나 2002년의 반입량이 유독 많은 것으로 나타나고 있다. 이정도의 차이가 실제로 있었는지는 [도매시장 통계 비교]() Post에서의 과정으로 비교해보았을 때 문제가 있는 것으로 판단할 수 있다. 
+
+```{r include=T, echo=F, warning=FALSE}
+kable(input_year_month,"html", caption='연도-월별 반입량(kg) 테이블') %>% kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"), font_size = 9,position = "center") %>% scroll_box(width = "100%", height = "200px")
+```
+
+##### 연도-월 명목가격
+
+다음은 연도-월별 kg당 가격에 대한 교차분석 결과를 3D 그래프로 살펴보자. R 코드는 반입량 분석 코드와 동일하며 그래프의 z축에 해당하는 값만 반입량에서 가격으로 변경하였다. 월별로 편차가 있기는 하나 2005년 이후부터 꾸준히 가격이 증하하는 추세를 보이고 있다. 이는 16년 전의 배추 가격이 현재의 가격과 동일한 가치를 가지는 것이 아니기 때문에 물가상승률에 대한 할인율의 적용이 필요하다. 물가상승 할인율 데이터는 [소비자물가지수와 할인율 계산]() Post를 통해서 만들 수 있으며 이번 Post에서 사용한 데이터는 [AWS S3 Agdata Lab 저장소](https://s3.amazonaws.com/agdatalab-share-folder/CPI_KOR_1975-2018(2002).csv)에서 받을 수 있다. 
+
+```{r include=T, echo=T, warning=FALSE}
+price_year_month <- dat3 %>% group_by(year,month) %>% summarise(price=mean(price_per_kg,na.rm=T)) %>% spread(month,price,fill=0) %>% ungroup()
+d6 <- as.matrix(price_year_month[,-1])
+hist3D(z = d6,  x = as.numeric(t(price_year_month[,1])), y = 1:12, scale = FALSE, expand = 0.002, bty = "g", phi = 30, theta = 20, col = jet.col(100), alpha = 0.5, border = "black", shade = 0.2, ltheta = 90, space = 0.4, ticktype = "detailed", d = 2, xlab='year',ylab='month',zlab='ton')
+```
+
+##### 연도-월 실질가격
+
+할인율 적용은 농축수산물 소비자물가지수에 대한 할인율을 적용하였다. 2002년을 지수 100으로 두었을 때 매년 증가한 물가에 대한 정보를 담고 있으며 2018년에는 2002년 대비 76.5%나 증가한 것으로 나타났다. 3D 막대그래프도 앞선 그래프와 비교해보면 물가상승 효과가 완화된 것을 느낄 수 있다. 물가 상승을 통제한 표준화된 가격을 이용해서 그래프를 해석해보면 2004년 이전에는 배추가격이 비교적 낮았으나 2005, 2006년에는 9, 10월 가격이 급등하였고 2009년 이후에는 2009, 2010, 2015, 2016년에 3,4월 가격이 급등하는 현상이 나타나고 있다. 9월 가격 폭등은 2005, 2010, 2016에 두드러져서 5~6년 주기를 보여주고 있다. 3,4월 가격 급등도 6년 주기였는데.. 주기가 정말 존재하는지는 더 장기간의 데이터를 들여다봐야 알 수 있을 것이다. 
+
+```{r include=T, echo=T, warning=FALSE}
+ds_rate <- read.csv('CPI_KOR_1975-2018(2002).csv',stringsAsFactors = F)
+price_year_month_norm <- merge(price_year_month,ds_rate[,c('year',"agri_2002")],by='year',all.x=T)
+price_year_month_norm[,2:13] <- price_year_month_norm[,2:13]/price_year_month_norm$agri_2002*100
+d6b <- as.matrix(price_year_month_norm[,2:13])
+hist3D(z = d6b,  x = as.numeric(t(price_year_month[,1])), y = 1:12, scale = FALSE, expand = 0.004, bty = "g", phi = 30, theta = 20,
+       col = jet.col(100), alpha = 0.5, border = "black", shade = 0.2, ltheta = 90,
+       space = 0.4, ticktype = "detailed", d = 2, xlab='year',ylab='month',zlab='ton')
+```
+
+```{r include=T, echo=F, warning=FALSE}
+kable(t(ds_rate[ds_rate$year>=2002,c('year','agri_2002')]),"html", caption='농축수산물 물가지수(2002=100)') %>% kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"), font_size = 9,position = "center") %>% scroll_box(width = "100%")
+```
+
+```{r include=T, echo=F, warning=FALSE}
+kable(price_year_month_norm,"html", caption='연도-월별 표준화 가격(원) 테이블') %>% kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"), font_size = 9,position = "center") %>% scroll_box(width = "100%", height = "200px")
+```
+
+--- 
+
+##### 산지-월 출하량
+
+산지-월별 출하량 패턴을 살펴보자. R 코드는 연도-월별 반입량 계산 코드에서 연도 대신 산지 변수 `sanji_wide2`가 들어갔다. 3D 그래프의 각도는 `hist3D()` 함수의 `phi`, `theta` 파라메터를 그래프의 패턴이 눈에 잘 보이도록 조정하면 된다. 산지의 개수는 총 22개이지만 출하량의 비중이 낮은 8개의 광역도 단위 지역만 포함시켰다. 이를 위해 산지별 총 출하량 `total` 변수를 만들어서 내림차순 정렬을 해서 상위 9개 (결측지역 1개 포함)만으로 그래프용 `d8` 테이블을 생성하였다. 
+
+먼저 전남과 강원 지역이 출하량(동일한 물동량이지만 산지기준에서는 출하의 개념이고 도매시장 기준에서는 출하된 물량을 반입하기 때문에 반입량이 된다)에서 앞도적으로 많다. 전남은 1~4월, 12월이 주 출하기이고 강원은 7~10월이 주 출하기이다. 세번째 출하지인 경북은 전남, 강원의 화력이 교체되는 틈새인 6, 11월이 주 출하기이고 네번째 출하지인 충남 역시 틈새 중 5, 11월이 주 출하기이다. 전남과 거리가 가까운 충남, 경남은 5월이 상반기 주력이고 강원도와 거리가 가까운 경북,경기,충북은 6월이 상반기 주력인 것은 지리적으로도 해석이 잘 된다. 나머지 지역들이 최대 산지인 전남과 강원이 교체되는 틈새 시기에 출하량이 많은 것은 기후요인 때문인지 전략적인 선택인지는 파악이 어려우나 두 요인의 적절한 결합확률에 의한 의사결정으로 볼 수는 있을 것 같다. 
+
+```{r include=T, echo=T, warning=FALSE}
+input_sanji_month <- dat3 %>% group_by(sanji_wide2,month) %>% summarise(input=sum(weight,na.rm=T)) %>% spread(month,input,fill=0) %>% ungroup()
+input_sanji_month <- input_sanji_month %>% mutate(total=apply(input_sanji_month[,-1],1,sum)) %>% arrange(desc(total))
+d8 <- as.matrix(input_sanji_month[1:9,2:13])/1000
+hist3D(z = d8, x=1:9, y=1:12, scale = FALSE, expand = 0.000005, bty = "g", phi = 40, theta = 15, col = jet.col(100), alpha = 0.5, border = "black", shade = 0.2, ltheta = 90, space = 0.4, ticktype = "detailed", d = 2, xlab="전남 강원 경북 결측 충남 경기 전북 경남 충북", ylab="month", zlab='ton', cex.lab=1.1)
+```
+
+```{r include=T, echo=F, warning=FALSE}
+kable(input_sanji_month,"html", caption='산지-월별 반입량(kg) 테이블') %>% kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"), font_size = 9,position = "center") %>% scroll_box(width = "100%", height = "200px")
+```
+
+##### 산지-월 실질가격
+
+이후 분석에서도 할인율 적용 가격이 계속 사용될 것이므로 할인율 적용 가격을 `price_per_kg_norm`의 이름으로 만들어보자. `dat3` row 데이터에 `year`를 기준으로 `agri_2002` 물가지수 변수를 merge하고 `price_per_kg`를 `agri_2002`로 나눈 뒤 다시 100을 곱해서 할인율이 적용된 가격 변수 `price_per_kg_norm`을 만든다.  
+
+```{r include=T, echo=T, warning=FALSE}
+dat3 <- merge(dat3, ds_rate[,c('year','agri_2002')], by='year', all.x=T)
+dat3 <- dat3 %>% mutate(price_per_kg_norm = price_per_kg / agri_2002 * 100)
+```
+
+이제 표준화된 가격이 산지-월별로 어떤 차이와 추세를 보이는지 살펴보자. 이제부터는 `price_per_kg_norm` 변수의 평균을 구해서 분석용 테이블을 만들 것이다. 아래 code의 두번째줄에서 `input_sanji_month[,c(1,14)]`를 기준으로 merge를 하는 이유는 출하량 기준으로 정렬된 상위 9개 산지 리스트와 동일한 리스트를 기준으로 가격 분석 결과를 보여주기 위해서이다. R의 `merge()` 함수는 key 변수를 기준으로 다시 정렬을 해버리기 때문에 기존에 정렬된 순서가 풀려버리게 되므로 반드시 다시 `arrange()` 함수를 이용해서 재정렬을 해주는 것이 필요하다. 
+
+산지-월별 가격 분포를 보면 경북 지역의 가격이 유난히 높은 것이 특징이다. 주산지인 전남 강원은 물량이 워낙 많아서인지 가격이 낮은 편이다. 나머지 지역에서는 주 출하기가 아닌 시즌에 가격이 높은 편이고 주 출하기에는 전남, 강원과 비슷한 수준인 것을 알 수 있다. 경북 지역의 가격은 이상치에 가깝다고 보여지는데 그 이유는 역시 현장 전문가에게 자문을 구해봐야 알 수 있을 것이다. 
+
+```{r include=T, echo=T, warning=FALSE}
+price_sanji_month <- dat3 %>% group_by(sanji_wide2,month) %>% summarise(price=mean(price_per_kg_norm,na.rm=T)) %>% spread(month,price,fill=0) %>% ungroup()
+price_sanji_month <- merge(input_sanji_month[,c(1,14)],price_sanji_month, by='sanji_wide2',all.x=T) %>% arrange(desc(total))
+d8b <- as.matrix(price_sanji_month[1:9,3:14])
+hist3D(z = d8b, x=1:9, y=1:12, scale = FALSE, expand = 0.001, bty = "g", phi = 40, theta = 15,   col = jet.col(100), alpha = 0.5, border = "black", shade = 0.2, ltheta = 90, space = 0.4, ticktype = "detailed", d = 2, xlab="전남 강원 경북 결측 충남 경기 전북 경남 충북", ylab="month", zlab='ton', cex.lab=1.1)
+```
+
+```{r include=T, echo=F, warning=FALSE}
+kable(price_sanji_month,"html", caption='산지-월별 표준화 가격(원) 테이블') %>% kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"), font_size = 9,position = "center") %>% scroll_box(width = "100%", height = "200px")
+```
+
+##### 산지-월 출하량+실질가격 
+
+이번에는 산지-월별 조건에서 출하량과 가격을 동시에 볼 수 있는 방법으로 histogram과 선그래프를 동시에 그려보자. `ggplot()` 함수는 데이터가 wide type이 아닌 long type이어야 group별 그래프 분리가 가능하기 때문에 `reshape2` 패키지의 'melt()` 함수를 이용해서 데이터를 변환여 `dat_sanji_month_long`으로 저장한다. 비슷하게 가격은 `tmp4`에 저장한 후 `dat_sanji_month_long`에 merge 시킨다. 변환과 merge 과정에서 `month` 변수가 factor형으로 변경되어서 다시 numeric형으로 전환해준다. 이제 `ggplot()`으로 출하량은 histogram으로, 가격은 y축을 상대적으로 변환하여 선그래프로 그려보자. 
+
+산지별 출하기는 3D 그래프에서 보았던 것과 동일하게 나타났다. 가격의 경우 상대적 크기로 표현이 되어서 우측 Y축 범위가 지역별로 다른 것을 볼 수 있다. 2002~2018년 17년간의 평균적인 트렌드에서는 모든 지역에서 1~3월까지는 가격이 오르다 4월부터 감소세를 보이다 6월에 최하점을 찍고 다시 8~9월에 최고치를 찍은 후 11월에 최저점으로 다시 내려오는 추세를 보이는 것을 확인할 수 있다. 
+
+```{r include=T, echo=T, warning=FALSE}
+dat_sanji_month_long <- melt(input_sanji_month[1:9,-14], id=c('sanji_wide2'), variable.name = 'month',value.name = 'input')
+tmp4 <- melt(price_sanji_month[,-2], id=c('sanji_wide2'), variable.name = 'month', value.name = 'price')
+dat_sanji_month_long <- merge(dat_sanji_month_long,tmp4, by=c('sanji_wide2','month'),all.x=T) 
+dat_sanji_month_long$month <- as.numeric(dat_sanji_month_long$month)
+ggplot(data=dat_sanji_month_long) + geom_bar(aes(x=month, y=input , fill= sanji_wide2, color=sanji_wide2),stat="identity",position=position_dodge(), colour="black") +
+  geom_line(aes(x=month, y=price*200000, group= sanji_wide2, color=sanji_wide2), color='blue', size=0.8, alpha=0.4) + scale_y_continuous(sec.axis = sec_axis(~./200000, name = "price")) + 
+  facet_grid(vars(sanji_wide2), scales="free_y") 
+```
+
+---
+
+##### 품종-월 반입량
+
+이번에는 품종-월별 반입량을 살펴보자. `sepname` 변수는 결측을 포함하여 16개의 품종값을 가지고 있는데 그 중 비중이 크지 않은 생채용 배추, 절임배추, 우거지, 배추뿌리, 배추(수입), 우거지(수입), 배양채 품종은 제외하고 `월동배추`, `봄배추`, `여름배추`, `고랭지배추`, `가을배추`, `저장배추`, `쌈배추`, `기타` 8개 품종만 고려하였다. 변수명이 품종명이기는 하나 실제로는 봄배추, 여름배추 품종이 다른 것은 아니기 때문에 배추에 대해서는 품종의 의미보다는 출하시기를 의미한다고 볼 수 있다. 그래프를 보면 월동배추는 1~3월, 봄배추는 5,6월, 여름배추/고랭지배추는 7~9월, 가을배추는 10~12월이 출하량이 많다. 주요 출하기에서 제외된 4월은 저장배추가 많이 출하되어 틈새를 매우는 형태를 보인다. 쌈배추는 연중 물량이 많지 않기도 하고 쌈용이기 때문에 본격적인 분석에서는 제외하는 것이 합당해보이는데 문제는 기타로 분류된 품종이다. 물량을 보면 가을배추와 비슷한 주출하기를 보이지만 연중 고르게 분포하고 있어서 이것이 쌈배추와 같이 별도의 용도인지 아니면 특정 산지에서는 품종정보를 기입하지 않아서 기타로 처리하는 것인지는 현장 확인이 필요할 것 같다. 
+
+```{r include=T, echo=T, warning=FALSE}
+input_spec_month <- dat3 %>% group_by(spename,month) %>% summarise(input=sum(weight,na.rm=T)) %>% spread(month,input,fill=0) %>% ungroup()
+input_spec_month <- input_spec_month %>% mutate(total=apply(input_spec_month[,-1],1,sum)) %>% arrange(desc(total))
+d9 <- as.matrix(input_spec_month[1:8,2:13])/1000
+hist3D(z = d9, x=1:8, y=1:12, scale = FALSE, expand = 0.00001, bty = "g", phi = 50, theta = 20,  col = jet.col(100), alpha = 0.5, border = "black", shade = 0.2, ltheta = 90, space = 0.4, ticktype = "detailed", d = 2, xlab="기타 가을 월동 봄 고냉지 여름 저장 쌈배추", ylab="month", zlab='ton', cex.lab=0.8)
+```
+
+```{r include=T, echo=F, warning=FALSE}
+kable(input_spec_month,"html", caption='산지-월별 표준화 가격(원) 테이블') %>% kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"), font_size = 9,position = "center") %>% scroll_box(width = "100%", height = "200px")
+```
+   
+##### 품종-월 실질가격       
+        
+다음은 품종-월별 표준화 가격 분포를 살펴보자. 기타와 쌈배추의 kg당 가격이 다른 품종 배추에 비해 지나치게 높은 것을 확인할 수 있다. 쌈배추는 별개의 용도로 보고 제외시키는 것이 문제가 안되지만 기타는 전체 물량에서 차지하는 비중이 가장 높기 때문에 제외시키는 것은 바람직하지 않다. 그렇다면 왜 기타 품종만 가격이 높은지는 추가 분석을 통해 확인을 해야 할 것이다. 문제의 두 품종을 제외하면 대체로 8,9월의 가격이 높은 편이고 여름배추의 가격이 1~4월은 높게 나타났으나 여름배추의 주 출하기가 7~9월인 점을 고려하면 의미있는 정보라고 보기는 어렵다. 
+
+```{r include=T, echo=T, warning=FALSE}
+price_spec_month <- dat3 %>% group_by(spename,month) %>% summarise(price=mean(price_per_kg_norm,na.rm=T)) %>% spread(month,price,fill=0) %>% ungroup()
+price_spec_month <- merge(input_spec_month[,c(1,14)],price_spec_month, by='spename',all.x=T) %>% arrange(desc(total))
+d9b <- as.matrix(price_spec_month[1:8,3:14])
+hist3D(z = d9b, x=1:8, y=1:12, scale = FALSE, expand = 0.003, bty = "g", phi = 50, theta = 20, col = jet.col(100), alpha = 0.5, border = "black", shade = 0.2, ltheta = 90, space = 0.4, ticktype = "detailed", d = 2, xlab="기타 가을 월동 봄 고냉지 여름 저장 쌈배추", ylab="month", zlab='ton', cex.lab=0.8)
+```
+
+##### 품종-월 출하량+실질가격 
+         
+품종-월별 조건에서 출하량과 가격을 histogram과 선그래프로 확인해보자. 산지별로 주 출하기가 달랐던 것과 유사하게 품종별로 주출하기가 다른 것을 볼 수 있다. 각 품종별로 해당 계절이 아닌 시기에도 출하량이 어느정도 잡히고 있는 것도 보이는데 품종을 기록하는 것이 산지의 출하조직에서 이루어지는 사람이 하는 일이라고 생각하면 오류의 존재를 인정할 수 있을 것이다. 따라서 기존의 품종 정보는 무시하고 월을 기준으로 새로운 품종 변수를 만드는 것이 더 적절할 수도 있을 것이다. 이는 이후 분석을 하는 과정에서의 결과를 통해서 어떤 방향이 나은지 생각해보자. 가격의 패턴은 산지에서와 유사하게 3, 8, 9월 고점, 6, 11월 저점을 보여주고 있다. 
+
+```{r include=T, echo=T, warning=FALSE}
+dat_spec_month_long <- melt(input_spec_month[1:8,-14], id=c('spename'), variable.name = 'month',value.name = 'input')
+tmp5 <- melt(price_spec_month[,-2], id=c('spename'), variable.name = 'month', value.name = 'price')
+dat_spec_month_long <- merge(dat_spec_month_long,tmp5, by=c('spename','month'),all.x=T) 
+dat_spec_month_long$month <- as.numeric(dat_spec_month_long$month)
+ggplot(data=dat_spec_month_long) + geom_bar(aes(x=month, y=input , fill= spename, color=spename),stat="identity",position=position_dodge(), colour="black") +
+  geom_line(aes(x=month, y=price*200000, group= spename, color=spename), color='blue', size=0.8, alpha=0.4) + scale_y_continuous(sec.axis = sec_axis(~./200000, name = "price")) + 
+  facet_grid(vars(spename), scales="free_y") 
+```
+
+---
+
+```{r include=F, echo=F, warning=FALSE}
+total_sort_2d <- function(data,y_var,x_var,sum_var) {
+  temp <- data %>% group_by_(.dots = list(lazyeval::lazy(y_var),lazyeval::lazy(x_var))) %>% summarise_(y = lazyeval::interp(~sum(var,na.rm=T), var=lazyeval::lazy(sum_var))) 
+  colnames(temp)[2] <- 'x_var'
+  temp <- temp %>% spread(x_var,y,fill=0) %>% ungroup()
+  temp <- temp %>% mutate(total=apply(temp[,-1],1,sum)) %>% arrange(desc(total))
+  tmp <- temp
+  tmp[nrow(tmp)+1,1] <- 'total'
+  tmp[nrow(tmp),2:(ncol(tmp)-1)] <- apply(tmp[1:(nrow(tmp)-1),2:(ncol(tmp)-1)],2,sum)
+  tmp <- tmp %>% mutate(total=apply(tmp[2:ncol(tmp)],1,sum)) %>% arrange(desc(total))
+  tmp2 <- cbind(data.frame(sanji=colnames(tmp)),t(tmp))
+  colnames(tmp2)[2:ncol(tmp2)] <- as.character(t(tmp2[1,2:ncol(tmp2)]))
+  tmp3 <- tmp2[-1,] 
+  tmp3[,2:ncol(tmp3)] <- apply(tmp3[,2:ncol(tmp3)],2,as.numeric)
+  colnames(tmp3)[ncol(tmp3)] <- 'total'
+  tmp3 <- tmp3 %>% arrange(desc(total))
+  return(tmp3)
+}
+```
+
+
+##### 품종-산지 출하량
+
+마지막으로 품종과 산지의 출하량 관계를 3D 그래프로 확인해보자. 출력용 가공 데이터는 `spename`과 `sanji_wide2` 변수로 피벗 테이블을 만들고 합계의 내림차순으로 정렬된 표이다. 두 변수 기준으로 해당 데이터를 만드는 함수는 [두 변수 정렬 피벗 테이블 함수]() Post를 참고하자. 
+
+생성된 가공 데이터에서 산지는 상위 9개, 품종은 상위 8개를 이용해서 3D 막대그래프를 그려보면 최대 주산지 전남에서는 `가을`, `월동`, `여름`, `배추`, `기타` 품종의 주 출하지이다. 두번째 주산지인 강원은 `고랭지`, `여름` 품종의 주 출하지이다. 가을 배추도 강원도가 2위 출하지이긴 하다. 경북은 봄, 가을 배추 출하량이 많은 편, 충남은 봄배추의 출하량이 많은 편이다. 경기 지역에서 기타 품종이 많은 것은 특이하다. 경기도에서 생산하는 특수 목적의 배추가 기타일 수도 있지 않을까? 하지만 문제의 기타 품종은 주 출하지인 전남, 강원의 출하량이 절대다수인 것을 보았을 때 품종정보가 기록 되지 않은 일반 배추일 가능성이 높아보인다. 
+
+```{r include=T, echo=T, warning=FALSE}
+input_spec_sanji_wide2 <- total_sort_2d(dat3,spename,sanji_wide2,weight)
+d10 <- as.matrix(input_spec_sanji_wide2[1:9,2:9])/1000
+hist3D(z = d10, x=1:9, y=1:8, scale = FALSE, expand = 0.00001, bty = "g", phi = 50, theta = 120, col = jet.col(100), alpha = 0.5, border = "black", shade = 0.2, ltheta = 90, space = 0.4, ticktype = "detailed", d = 2, xlab="충북 경남 전북 경기 충남 결측 경북 강원 전남", cex.lab=0.8, ylab="기타  가을  월동  봄  고냉지  여름  저장  쌈배추", zlab='ton')
+```
+
+```{r include=T, echo=F}
+kable(input_spec_month,"html", caption='품종-산지별 출하량(kg) 테이블') %>% kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"), font_size = 9,position = "center") %>% scroll_box(width = "100%", height = "200px")
+```
+
+---
+
+<center> [NEXT : 도매시장 경락 데이터의 이해: 배추(3/3)](/post/wholesale_market_data1) </center>
+
+---
